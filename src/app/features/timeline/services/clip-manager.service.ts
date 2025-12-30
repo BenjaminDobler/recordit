@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { AudioTrack } from '../../../core/models/audio-track.model';
 import { AudioClip } from '../../../core/models/audio-clip.model';
 import { v4 as uuidv4 } from 'uuid';
+import { generateWaveformData } from '../../../shared/utils/waveform-generator.util';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +70,9 @@ export class ClipManagerService {
    * Creates a new clip with the given audio buffer
    */
   createClip(trackId: string, audioBuffer: AudioBuffer, name: string, startTime: number = 0): AudioClip {
+    // Generate waveform data for visualization
+    const waveformData = generateWaveformData(audioBuffer, 200);
+
     const clip: AudioClip = {
       id: uuidv4(),
       trackId,
@@ -78,6 +82,7 @@ export class ClipManagerService {
       trimStart: 0,
       trimEnd: 0,
       audioBuffer,
+      waveformData,
       color: '#9b59b6'
     };
 

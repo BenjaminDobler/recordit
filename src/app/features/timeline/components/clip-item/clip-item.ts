@@ -1,9 +1,10 @@
 import { Component, input, computed, signal, output } from '@angular/core';
 import { AudioClip } from '../../../../core/models/audio-clip.model';
+import { WaveformDisplay } from '../../../../shared/components/waveform-display/waveform-display';
 
 @Component({
   selector: 'app-clip-item',
-  imports: [],
+  imports: [WaveformDisplay],
   templateUrl: './clip-item.html',
   styleUrl: './clip-item.scss',
   standalone: true

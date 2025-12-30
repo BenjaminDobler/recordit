@@ -23,7 +23,19 @@
     transition: none; // Disable transitions while dragging
   }
 
+  .waveform-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.6;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
   .clip-content {
+    position: relative;
     padding: 8px 12px;
     display: flex;
     flex-direction: column;
@@ -31,6 +43,8 @@
     height: 100%;
     color: white;
     font-size: 12px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    z-index: 1;
 
     .clip-name {
       font-weight: 600;
