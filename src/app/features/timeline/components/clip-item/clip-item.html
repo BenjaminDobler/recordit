@@ -1,8 +1,10 @@
 <div
   class="clip-item"
+  [class.dragging]="isDragging()"
   [style.left.px]="clipLeft()"
   [style.width.px]="clipWidth()"
-  [style.background-color]="clip().color">
+  [style.background-color]="clip().color"
+  (mousedown)="onMouseDown($event)">
   <div class="clip-content">
     <span class="clip-name">{{ clip().name }}</span>
     <span class="clip-duration">{{ clip().duration.toFixed(2) }}s</span>

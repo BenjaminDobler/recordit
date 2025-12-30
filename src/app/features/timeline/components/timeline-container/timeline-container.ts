@@ -76,4 +76,11 @@ export class TimelineContainer {
   onTrackSoloToggle(trackId: string): void {
     this.clipManagerService.toggleTrackSolo(trackId);
   }
+
+  /**
+   * Updates a clip's position
+   */
+  onClipPositionChange(event: { clipId: string; newStartTime: number }): void {
+    this.clipManagerService.updateClipPosition(event.clipId, event.newStartTime);
+  }
 }

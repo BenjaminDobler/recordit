@@ -47,7 +47,10 @@
   <div class="track-content">
     <div class="clips-container">
       @for (clip of track().clips; track clip.id) {
-        <app-clip-item [clip]="clip" [pixelsPerSecond]="pixelsPerSecond()" />
+        <app-clip-item
+          [clip]="clip"
+          [pixelsPerSecond]="pixelsPerSecond()"
+          (positionChange)="onClipPositionChange($event)" />
       }
       @empty {
         <div class="empty-track-message">

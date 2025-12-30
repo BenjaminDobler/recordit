@@ -20,6 +20,7 @@ export class TrackLane {
   volumeChange = output<{ trackId: string; volume: number }>();
   muteToggle = output<string>();
   soloToggle = output<string>();
+  clipPositionChange = output<{ clipId: string; newStartTime: number }>();
 
   onArmClick(): void {
     this.armToggle.emit(this.track().id);
@@ -41,5 +42,9 @@ export class TrackLane {
 
   onSoloClick(): void {
     this.soloToggle.emit(this.track().id);
+  }
+
+  onClipPositionChange(event: { clipId: string; newStartTime: number }): void {
+    this.clipPositionChange.emit(event);
   }
 }

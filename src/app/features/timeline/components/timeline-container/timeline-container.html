@@ -32,7 +32,8 @@
         (trackDelete)="onTrackDelete($event)"
         (volumeChange)="onTrackVolumeChange($event)"
         (muteToggle)="onTrackMuteToggle($event)"
-        (soloToggle)="onTrackSoloToggle($event)" />
+        (soloToggle)="onTrackSoloToggle($event)"
+        (clipPositionChange)="onClipPositionChange($event)" />
     }
     @empty {
       <div class="no-tracks-message">
