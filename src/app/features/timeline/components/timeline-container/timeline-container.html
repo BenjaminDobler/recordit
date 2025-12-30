@@ -33,7 +33,9 @@
         (volumeChange)="onTrackVolumeChange($event)"
         (muteToggle)="onTrackMuteToggle($event)"
         (soloToggle)="onTrackSoloToggle($event)"
-        (clipPositionChange)="onClipPositionChange($event)" />
+        (clipPositionChange)="onClipPositionChange($event)"
+        (distortionChange)="onDistortionChange($event)"
+        (distortionToggle)="onDistortionToggle($event)" />
     }
     @empty {
       <div class="no-tracks-message">

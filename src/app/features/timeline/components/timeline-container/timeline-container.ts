@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ClipManagerService } from '../../services/clip-manager.service';
 import { PlaybackService } from '../../../../core/services/playback.service';
+import { EffectType } from '../../../../core/models/effect.model';
 import { TrackLane } from '../track-lane/track-lane';
 import { Playhead } from '../playhead/playhead';
 
@@ -82,5 +83,24 @@ export class TimelineContainer {
    */
   onClipPositionChange(event: { clipId: string; newStartTime: number }): void {
     this.clipManagerService.updateClipPosition(event.clipId, event.newStartTime);
+  }
+
+  /**
+   * Updates distortion amount for a track
+   */
+  onDistortionChange(event: { trackId: string; amount: number }): void {
+    this.clipManagerService.updateTrackEffect(
+      event.trackId,
+      EffectType.Distortion,
+      { amount: event.amount },
+      true
+    );
+  }
+
+  /**
+   * Toggles distortion effect on/off for a track
+   */
+  onDistortionToggle(trackId: string): void {
+    this.clipManagerService.toggleTrackEffect(trackId, EffectType.Distortion);
   }
 }

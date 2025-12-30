@@ -2,8 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AudioContextService } from './audio-context.service';
 import { ClipManagerService } from '../../features/timeline/services/clip-manager.service';
+import { EffectsProcessorService } from './effects-processor.service';
 import { AudioTrack } from '../models/audio-track.model';
 import { AudioClip } from '../models/audio-clip.model';
+import { EffectType } from '../models/effect.model';
 
 export enum PlaybackState {
   Idle = 'idle',
@@ -23,6 +25,7 @@ interface TrackPlaybackNode {
 export class PlaybackService {
   private audioContextService = inject(AudioContextService);
   private clipManagerService = inject(ClipManagerService);
+  private effectsProcessorService = inject(EffectsProcessorService);
 
   private playbackStateSubject = new BehaviorSubject<PlaybackState>(PlaybackState.Idle);
   private currentTimeSubject = new BehaviorSubject<number>(0);
@@ -71,14 +74,30 @@ export class PlaybackService {
       // Set gain based on track volume and mute/solo state
       gainNode.gain.value = shouldPlay ? track.volume : 0;
 
-      // Connect to destination
+      // Create effects chain
+      let effectsChain: AudioNode = gainNode;
+
+      // Apply distortion effect if enabled
+      const distortionEffect = track.effects.find(e => e.type === EffectType.Distortion);
+      if (distortionEffect && distortionEffect.enabled) {
+        const distortionAmount = distortionEffect.parameters['amount'] || 50;
+        const distortionNode = this.effectsProcessorService.createDistortion(distortionAmount);
+
+        // Insert distortion before gain: distortion → gain
+        distortionNode.connect(gainNode);
+        effectsChain = distortionNode;
+      }
+
+      // Connect final node to destination
       gainNode.connect(audioContext.destination);
 
       // Create source nodes for each clip in the track
       const sources: AudioBufferSourceNode[] = track.clips.map(clip => {
         const source = audioContext.createBufferSource();
         source.buffer = clip.audioBuffer;
-        source.connect(gainNode);
+
+        // Connect to the effects chain (or directly to gain if no effects)
+        source.connect(effectsChain);
 
         // Schedule the clip to start at its position on the timeline
         source.start(audioContext.currentTime + clip.startTime);

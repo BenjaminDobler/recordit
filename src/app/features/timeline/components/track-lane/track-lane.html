@@ -35,6 +35,28 @@
             title="Volume" />
           <span class="volume-label">{{ (track().volume * 100).toFixed(0) }}%</span>
         </div>
+        <div class="effects-control">
+          <div class="effect-header">
+            <span class="effect-label">Distortion</span>
+            <button
+              class="effect-toggle"
+              [class.active]="distortionEnabled()"
+              (click)="onDistortionToggle()"
+              title="Toggle distortion">
+              {{ distortionEnabled() ? 'ON' : 'OFF' }}
+            </button>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="distortionAmount()"
+            (input)="onDistortionChange($event)"
+            class="effect-slider"
+            [disabled]="!distortionEnabled()"
+            title="Distortion amount" />
+          <span class="effect-value">{{ distortionAmount().toFixed(0) }}</span>
+        </div>
         <button
           class="delete-button"
           (click)="onDeleteClick()"

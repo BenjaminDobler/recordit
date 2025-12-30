@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AudioTrack } from '../../../core/models/audio-track.model';
 import { AudioClip } from '../../../core/models/audio-clip.model';
+import { Effect, EffectType } from '../../../core/models/effect.model';
 import { v4 as uuidv4 } from 'uuid';
 import { generateWaveformData } from '../../../shared/utils/waveform-generator.util';
 
@@ -244,5 +245,66 @@ export class ClipManagerService {
       track.id === trackId ? { ...track, solo: !track.solo } : track
     );
     this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Adds or updates an effect on a track
+   */
+  updateTrackEffect(trackId: string, effectType: EffectType, parameters: Record<string, number>, enabled: boolean = true): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track => {
+      if (track.id !== trackId) return track;
+
+      // Find existing effect or create new one
+      const existingEffectIndex = track.effects.findIndex(e => e.type === effectType);
+      const effects = [...track.effects];
+
+      if (existingEffectIndex >= 0) {
+        // Update existing effect
+        effects[existingEffectIndex] = {
+          ...effects[existingEffectIndex],
+          parameters,
+          enabled
+        };
+      } else {
+        // Add new effect
+        effects.push({
+          id: uuidv4(),
+          type: effectType,
+          enabled,
+          parameters
+        });
+      }
+
+      return { ...track, effects };
+    });
+
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Toggles an effect on/off for a track
+   */
+  toggleTrackEffect(trackId: string, effectType: EffectType): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track => {
+      if (track.id !== trackId) return track;
+
+      const effects = track.effects.map(effect =>
+        effect.type === effectType ? { ...effect, enabled: !effect.enabled } : effect
+      );
+
+      return { ...track, effects };
+    });
+
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Gets an effect from a track
+   */
+  getTrackEffect(trackId: string, effectType: EffectType): Effect | undefined {
+    const track = this.getTrack(trackId);
+    return track?.effects.find(e => e.type === effectType);
   }
 }
