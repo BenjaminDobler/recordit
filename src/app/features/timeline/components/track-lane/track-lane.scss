@@ -1,0 +1,134 @@
+.track-lane {
+  display: flex;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+
+  &.armed {
+    border-color: #e74c3c;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+
+    .track-header {
+      background: #ffe5e0;
+    }
+
+    .track-content {
+      background: #fff5f3;
+    }
+  }
+
+  .track-header {
+    width: 150px;
+    padding: 12px;
+    background: #ecf0f1;
+    border-right: 1px solid #bdc3c7;
+    flex-shrink: 0;
+
+    .track-info {
+      .track-name {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .track-controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #7f8c8d;
+
+        .arm-button {
+          background: white;
+          border: 2px solid #95a5a6;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          cursor: pointer;
+          font-size: 16px;
+          line-height: 1;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: #e74c3c;
+            transform: scale(1.1);
+          }
+
+          &.active {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+            animation: pulse 2s infinite;
+          }
+        }
+
+        .track-volume {
+          flex: 1;
+          font-size: 11px;
+        }
+
+        .delete-button {
+          background: transparent;
+          border: 1px solid #95a5a6;
+          border-radius: 3px;
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          font-size: 18px;
+          line-height: 1;
+          padding: 0;
+          color: #7f8c8d;
+          transition: all 0.2s;
+
+          &:hover {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  .track-content {
+    flex: 1;
+    position: relative;
+    min-height: 80px;
+    background: #f8f9fa;
+
+    .clips-container {
+      position: relative;
+      height: 100%;
+      min-height: 80px;
+      padding: 10px 0;
+    }
+
+    .empty-track-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #95a5a6;
+      font-size: 13px;
+      font-style: italic;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}

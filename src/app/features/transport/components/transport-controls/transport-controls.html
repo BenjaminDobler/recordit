@@ -1,0 +1,33 @@
+<div class="transport-controls">
+  <h2>Playback Controls</h2>
+
+  <div class="buttons">
+    <button
+      class="play-button"
+      [class.playing]="(playbackState$ | async) === PlaybackState.Playing"
+      [disabled]="!(currentAudioBuffer$ | async) || (playbackState$ | async) === PlaybackState.Playing"
+      (click)="onPlay()">
+      <span class="button-icon">▶</span>
+      {{ (playbackState$ | async) === PlaybackState.Playing ? 'Playing...' : 'Play' }}
+    </button>
+
+    <button
+      class="stop-button"
+      [disabled]="(playbackState$ | async) !== PlaybackState.Playing"
+      (click)="onStop()">
+      <span class="button-icon">■</span>
+      Stop
+    </button>
+  </div>
+
+  <div class="status" *ngIf="!(currentAudioBuffer$ | async)">
+    <p class="info-text">No audio recorded yet. Record something first!</p>
+  </div>
+
+  <div class="status" *ngIf="(currentAudioBuffer$ | async) as buffer">
+    <p class="info-text">
+      Audio ready: {{ buffer.duration.toFixed(2) }} seconds
+      ({{ buffer.numberOfChannels }} channel{{ buffer.numberOfChannels > 1 ? 's' : '' }})
+    </p>
+  </div>
+</div>

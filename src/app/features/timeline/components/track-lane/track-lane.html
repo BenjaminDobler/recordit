@@ -1,0 +1,35 @@
+<div class="track-lane" [class.armed]="track().armed">
+  <div class="track-header">
+    <div class="track-info">
+      <h3 class="track-name">{{ track().name }}</h3>
+      <div class="track-controls">
+        <button
+          class="arm-button"
+          [class.active]="track().armed"
+          (click)="onArmClick()"
+          title="Arm track for recording">
+          {{ track().armed ? '◉' : '○' }}
+        </button>
+        <span class="track-volume">Vol: {{ (track().volume * 100).toFixed(0) }}%</span>
+        <button
+          class="delete-button"
+          (click)="onDeleteClick()"
+          title="Delete track">
+          ×
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="track-content">
+    <div class="clips-container">
+      @for (clip of track().clips; track clip.id) {
+        <app-clip-item [clip]="clip" [pixelsPerSecond]="pixelsPerSecond()" />
+      }
+      @empty {
+        <div class="empty-track-message">
+          <span>{{ track().armed ? 'Armed and ready to record' : 'No clips on this track' }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

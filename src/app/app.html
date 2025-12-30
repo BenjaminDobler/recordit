@@ -1,0 +1,13 @@
+<div class="app-container">
+  <header class="app-header">
+    <h1>{{ title() }}</h1>
+    <p>Browser-based Digital Audio Workstation</p>
+  </header>
+
+  <main class="app-main">
+    <app-record-controls></app-record-controls>
+    <app-transport-controls></app-transport-controls>
+    <app-timeline-container></app-timeline-container>
+    <router-outlet />
+  </main>
+</div>

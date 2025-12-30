@@ -1,0 +1,10 @@
+<div
+  class="clip-item"
+  [style.left.px]="clipLeft()"
+  [style.width.px]="clipWidth()"
+  [style.background-color]="clip().color">
+  <div class="clip-content">
+    <span class="clip-name">{{ clip().name }}</span>
+    <span class="clip-duration">{{ clip().duration.toFixed(2) }}s</span>
+  </div>
+</div>

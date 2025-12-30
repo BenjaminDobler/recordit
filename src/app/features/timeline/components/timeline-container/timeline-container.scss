@@ -1,0 +1,99 @@
+.timeline-container {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 1200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .add-track-button {
+      padding: 8px 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .time-ruler-wrapper {
+    display: flex;
+    margin-bottom: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    .ruler-spacer {
+      width: 150px;
+      flex-shrink: 0;
+    }
+
+    .time-ruler {
+      position: relative;
+      height: 30px;
+      background: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+      flex-shrink: 0;
+
+      .time-marker {
+        position: absolute;
+        top: 0;
+        height: 100%;
+
+        .marker-label {
+          display: block;
+          font-size: 11px;
+          color: #6c757d;
+          margin-bottom: 4px;
+          white-space: nowrap;
+        }
+
+        .marker-line {
+          width: 1px;
+          height: 12px;
+          background: #dee2e6;
+        }
+      }
+    }
+  }
+
+  .tracks-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+
+    .no-tracks-message {
+      text-align: center;
+      padding: 40px;
+      color: #95a5a6;
+      font-style: italic;
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+}
