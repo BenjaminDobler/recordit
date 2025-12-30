@@ -19,6 +19,9 @@
     </div>
   </div>
 
+  <!-- Playhead -->
+  <app-playhead [currentTime]="currentTime()" [pixelsPerSecond]="pixelsPerSecond()" />
+
   <!-- Tracks -->
   <div class="tracks-container">
     @for (track of tracks(); track track.id) {

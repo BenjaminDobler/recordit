@@ -1,0 +1,36 @@
+.playhead {
+  position: absolute;
+  top: 82px; // Account for header (68px) + time ruler (30px) + some spacing
+  bottom: 20px;
+  left: 150px; // Account for ruler-spacer
+  z-index: 100;
+  pointer-events: none;
+
+  .playhead-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e74c3c;
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.5);
+  }
+
+  .playhead-handle {
+    position: absolute;
+    top: -8px;
+    left: -6px;
+    width: 14px;
+    height: 14px;
+    background: #e74c3c;
+    border: 2px solid white;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    pointer-events: auto;
+
+    &:hover {
+      transform: scale(1.2);
+      transition: transform 0.1s;
+    }
+  }
+}

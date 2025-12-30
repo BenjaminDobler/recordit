@@ -13,12 +13,15 @@ export enum PlaybackState {
 })
 export class PlaybackService {
   private playbackStateSubject = new BehaviorSubject<PlaybackState>(PlaybackState.Idle);
+  private currentTimeSubject = new BehaviorSubject<number>(0);
   private currentSource: AudioBufferSourceNode | null = null;
   private currentBuffer: AudioBuffer | null = null;
   private startTime: number = 0;
   private pauseTime: number = 0;
+  private animationFrameId: number | null = null;
 
   playbackState$: Observable<PlaybackState> = this.playbackStateSubject.asObservable();
+  currentTime$: Observable<number> = this.currentTimeSubject.asObservable();
 
   constructor(private audioContextService: AudioContextService) {}
 
@@ -69,12 +72,21 @@ export class PlaybackService {
     this.currentSource.start(0);
     this.startTime = audioContext.currentTime;
     this.playbackStateSubject.next(PlaybackState.Playing);
+
+    // Start playhead animation
+    this.updatePlaybackTime();
   }
 
   /**
    * Stops playback
    */
   stop(): void {
+    // Stop animation frame updates
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
     if (this.currentSource) {
       try {
         this.currentSource.stop();
@@ -85,7 +97,20 @@ export class PlaybackService {
       this.currentSource = null;
     }
     this.playbackStateSubject.next(PlaybackState.Idle);
+    this.currentTimeSubject.next(0);
     this.pauseTime = 0;
+  }
+
+  /**
+   * Updates the current playback time using requestAnimationFrame
+   */
+  private updatePlaybackTime = (): void => {
+    if (this.playbackStateSubject.value === PlaybackState.Playing) {
+      const audioContext = this.audioContextService.getContext();
+      const elapsed = audioContext.currentTime - this.startTime;
+      this.currentTimeSubject.next(elapsed);
+      this.animationFrameId = requestAnimationFrame(this.updatePlaybackTime);
+    }
   }
 
   /**

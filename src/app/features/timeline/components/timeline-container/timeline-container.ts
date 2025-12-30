@@ -2,19 +2,23 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ClipManagerService } from '../../services/clip-manager.service';
+import { PlaybackService } from '../../../../core/services/playback.service';
 import { TrackLane } from '../track-lane/track-lane';
+import { Playhead } from '../playhead/playhead';
 
 @Component({
   selector: 'app-timeline-container',
-  imports: [CommonModule, TrackLane],
+  imports: [CommonModule, TrackLane, Playhead],
   templateUrl: './timeline-container.html',
   styleUrl: './timeline-container.scss',
   standalone: true
 })
 export class TimelineContainer {
   private clipManagerService = inject(ClipManagerService);
+  private playbackService = inject(PlaybackService);
 
   tracks = toSignal(this.clipManagerService.tracks$, { initialValue: [] });
+  currentTime = toSignal(this.playbackService.currentTime$, { initialValue: 0 });
   pixelsPerSecond = signal(100); // Can be adjusted for zoom
   timelineLength = signal(30); // 30 seconds visible
 
