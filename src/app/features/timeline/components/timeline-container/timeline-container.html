@@ -29,7 +29,10 @@
         [track]="track"
         [pixelsPerSecond]="pixelsPerSecond()"
         (armToggle)="onTrackArmToggle($event)"
-        (trackDelete)="onTrackDelete($event)" />
+        (trackDelete)="onTrackDelete($event)"
+        (volumeChange)="onTrackVolumeChange($event)"
+        (muteToggle)="onTrackMuteToggle($event)"
+        (soloToggle)="onTrackSoloToggle($event)" />
     }
     @empty {
       <div class="no-tracks-message">

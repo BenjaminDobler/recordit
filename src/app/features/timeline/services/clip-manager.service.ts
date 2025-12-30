@@ -207,4 +207,37 @@ export class ClipManagerService {
     const updatedTracks = tracks.filter(track => track.id !== trackId);
     this.tracksSubject.next(updatedTracks);
   }
+
+  /**
+   * Updates a track's volume (0-1)
+   */
+  updateTrackVolume(trackId: string, volume: number): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track =>
+      track.id === trackId ? { ...track, volume: Math.max(0, Math.min(1, volume)) } : track
+    );
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Toggles a track's mute state
+   */
+  toggleTrackMute(trackId: string): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track =>
+      track.id === trackId ? { ...track, muted: !track.muted } : track
+    );
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Toggles a track's solo state
+   */
+  toggleTrackSolo(trackId: string): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track =>
+      track.id === trackId ? { ...track, solo: !track.solo } : track
+    );
+    this.tracksSubject.next(updatedTracks);
+  }
 }

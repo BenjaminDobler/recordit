@@ -55,4 +55,25 @@ export class TimelineContainer {
       this.clipManagerService.removeTrack(trackId);
     }
   }
+
+  /**
+   * Updates a track's volume
+   */
+  onTrackVolumeChange(event: { trackId: string; volume: number }): void {
+    this.clipManagerService.updateTrackVolume(event.trackId, event.volume);
+  }
+
+  /**
+   * Toggles a track's mute state
+   */
+  onTrackMuteToggle(trackId: string): void {
+    this.clipManagerService.toggleTrackMute(trackId);
+  }
+
+  /**
+   * Toggles a track's solo state
+   */
+  onTrackSoloToggle(trackId: string): void {
+    this.clipManagerService.toggleTrackSolo(trackId);
+  }
 }

@@ -20,8 +20,8 @@ export class TransportControls {
 
   async onPlay(): Promise<void> {
     try {
-      await this.playbackService.play();
-      console.log('Playback started');
+      await this.playbackService.playAllTracks();
+      console.log('Multi-track playback started');
     } catch (error) {
       console.error('Failed to start playback:', error);
       alert('Failed to play audio. Make sure you have recorded something first.');

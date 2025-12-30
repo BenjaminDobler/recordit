@@ -10,7 +10,31 @@
           title="Arm track for recording">
           {{ track().armed ? '◉' : '○' }}
         </button>
-        <span class="track-volume">Vol: {{ (track().volume * 100).toFixed(0) }}%</span>
+        <button
+          class="mute-button"
+          [class.active]="track().muted"
+          (click)="onMuteClick()"
+          title="Mute track">
+          M
+        </button>
+        <button
+          class="solo-button"
+          [class.active]="track().solo"
+          (click)="onSoloClick()"
+          title="Solo track">
+          S
+        </button>
+        <div class="volume-control">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="track().volume * 100"
+            (input)="onVolumeChange($event)"
+            class="volume-slider"
+            title="Volume" />
+          <span class="volume-label">{{ (track().volume * 100).toFixed(0) }}%</span>
+        </div>
         <button
           class="delete-button"
           (click)="onDeleteClick()"

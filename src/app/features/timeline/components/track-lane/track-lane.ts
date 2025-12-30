@@ -17,6 +17,9 @@ export class TrackLane {
   // Events
   armToggle = output<string>();
   trackDelete = output<string>();
+  volumeChange = output<{ trackId: string; volume: number }>();
+  muteToggle = output<string>();
+  soloToggle = output<string>();
 
   onArmClick(): void {
     this.armToggle.emit(this.track().id);
@@ -24,5 +27,19 @@ export class TrackLane {
 
   onDeleteClick(): void {
     this.trackDelete.emit(this.track().id);
+  }
+
+  onVolumeChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const volume = parseInt(target.value) / 100;
+    this.volumeChange.emit({ trackId: this.track().id, volume });
+  }
+
+  onMuteClick(): void {
+    this.muteToggle.emit(this.track().id);
+  }
+
+  onSoloClick(): void {
+    this.soloToggle.emit(this.track().id);
   }
 }

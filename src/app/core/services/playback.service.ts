@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AudioContextService } from './audio-context.service';
+import { ClipManagerService } from '../../features/timeline/services/clip-manager.service';
+import { AudioTrack } from '../models/audio-track.model';
+import { AudioClip } from '../models/audio-clip.model';
 
 export enum PlaybackState {
   Idle = 'idle',
@@ -8,10 +11,19 @@ export enum PlaybackState {
   Paused = 'paused'
 }
 
+interface TrackPlaybackNode {
+  trackId: string;
+  gainNode: GainNode;
+  sources: AudioBufferSourceNode[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PlaybackService {
+  private audioContextService = inject(AudioContextService);
+  private clipManagerService = inject(ClipManagerService);
+
   private playbackStateSubject = new BehaviorSubject<PlaybackState>(PlaybackState.Idle);
   private currentTimeSubject = new BehaviorSubject<number>(0);
   private currentSource: AudioBufferSourceNode | null = null;
@@ -19,11 +31,10 @@ export class PlaybackService {
   private startTime: number = 0;
   private pauseTime: number = 0;
   private animationFrameId: number | null = null;
+  private trackPlaybackNodes: TrackPlaybackNode[] = [];
 
   playbackState$: Observable<PlaybackState> = this.playbackStateSubject.asObservable();
   currentTime$: Observable<number> = this.currentTimeSubject.asObservable();
-
-  constructor(private audioContextService: AudioContextService) {}
 
   /**
    * Converts a Blob to an AudioBuffer
@@ -35,7 +46,63 @@ export class PlaybackService {
   }
 
   /**
-   * Plays an audio buffer
+   * Plays all tracks with mixing
+   */
+  async playAllTracks(): Promise<void> {
+    // Resume audio context if suspended (required for browser autoplay policies)
+    await this.audioContextService.resume();
+
+    // Stop any currently playing audio
+    this.stop();
+
+    const audioContext = this.audioContextService.getContext();
+    const tracks = this.clipManagerService.getTracks();
+
+    // Check if any tracks have solo enabled
+    const hasSoloTracks = tracks.some(track => track.solo);
+
+    // Create audio graph for each track
+    this.trackPlaybackNodes = tracks.map(track => {
+      const gainNode = audioContext.createGain();
+
+      // Determine if this track should be audible
+      const shouldPlay = hasSoloTracks ? track.solo : !track.muted;
+
+      // Set gain based on track volume and mute/solo state
+      gainNode.gain.value = shouldPlay ? track.volume : 0;
+
+      // Connect to destination
+      gainNode.connect(audioContext.destination);
+
+      // Create source nodes for each clip in the track
+      const sources: AudioBufferSourceNode[] = track.clips.map(clip => {
+        const source = audioContext.createBufferSource();
+        source.buffer = clip.audioBuffer;
+        source.connect(gainNode);
+
+        // Schedule the clip to start at its position on the timeline
+        source.start(audioContext.currentTime + clip.startTime);
+
+        return source;
+      });
+
+      return {
+        trackId: track.id,
+        gainNode,
+        sources
+      };
+    });
+
+    // Start playback state
+    this.startTime = audioContext.currentTime;
+    this.playbackStateSubject.next(PlaybackState.Playing);
+
+    // Start playhead animation
+    this.updatePlaybackTime();
+  }
+
+  /**
+   * Plays an audio buffer (legacy method for single buffer playback)
    */
   async play(buffer?: AudioBuffer): Promise<void> {
     // Resume audio context if suspended (required for browser autoplay policies)
@@ -87,6 +154,21 @@ export class PlaybackService {
       this.animationFrameId = null;
     }
 
+    // Stop and disconnect all track playback nodes (multi-track playback)
+    this.trackPlaybackNodes.forEach(node => {
+      node.sources.forEach(source => {
+        try {
+          source.stop();
+        } catch (error) {
+          // Source might already be stopped
+        }
+        source.disconnect();
+      });
+      node.gainNode.disconnect();
+    });
+    this.trackPlaybackNodes = [];
+
+    // Stop legacy single source (if playing)
     if (this.currentSource) {
       try {
         this.currentSource.stop();
@@ -96,6 +178,7 @@ export class PlaybackService {
       this.currentSource.disconnect();
       this.currentSource = null;
     }
+
     this.playbackStateSubject.next(PlaybackState.Idle);
     this.currentTimeSubject.next(0);
     this.pauseTime = 0;
