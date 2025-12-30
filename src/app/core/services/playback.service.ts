@@ -77,14 +77,27 @@ export class PlaybackService {
       // Create effects chain
       let effectsChain: AudioNode = gainNode;
 
+      // Apply delay effect if enabled (before distortion for cleaner delays)
+      const delayEffect = track.effects.find(e => e.type === EffectType.Delay);
+      if (delayEffect && delayEffect.enabled) {
+        const time = (delayEffect.parameters['time'] || 30) / 100; // Convert 0-100 to 0-1 seconds
+        const feedback = delayEffect.parameters['feedback'] || 30;
+        const wetDry = delayEffect.parameters['wetDry'] || 50;
+        const delayNodes = this.effectsProcessorService.createDelay(time, feedback, wetDry);
+
+        // Insert delay before current chain: delay → chain
+        delayNodes.output.connect(effectsChain);
+        effectsChain = delayNodes.input;
+      }
+
       // Apply distortion effect if enabled
       const distortionEffect = track.effects.find(e => e.type === EffectType.Distortion);
       if (distortionEffect && distortionEffect.enabled) {
         const distortionAmount = distortionEffect.parameters['amount'] || 50;
         const distortionNode = this.effectsProcessorService.createDistortion(distortionAmount);
 
-        // Insert distortion before gain: distortion → gain
-        distortionNode.connect(gainNode);
+        // Insert distortion before current chain: distortion → chain
+        distortionNode.connect(effectsChain);
         effectsChain = distortionNode;
       }
 

@@ -20,6 +20,12 @@ export class TrackLane {
   distortionAmount = computed(() => this.distortionEffect()?.parameters['amount'] ?? 0);
   distortionEnabled = computed(() => this.distortionEffect()?.enabled ?? false);
 
+  delayEffect = computed(() => this.track().effects.find(e => e.type === EffectType.Delay));
+  delayTime = computed(() => this.delayEffect()?.parameters['time'] ?? 30);
+  delayFeedback = computed(() => this.delayEffect()?.parameters['feedback'] ?? 30);
+  delayWetDry = computed(() => this.delayEffect()?.parameters['wetDry'] ?? 50);
+  delayEnabled = computed(() => this.delayEffect()?.enabled ?? false);
+
   // Events
   armToggle = output<string>();
   trackDelete = output<string>();
@@ -29,6 +35,8 @@ export class TrackLane {
   clipPositionChange = output<{ clipId: string; newStartTime: number }>();
   distortionChange = output<{ trackId: string; amount: number }>();
   distortionToggle = output<string>();
+  delayChange = output<{ trackId: string; time: number; feedback: number; wetDry: number }>();
+  delayToggle = output<string>();
 
   onArmClick(): void {
     this.armToggle.emit(this.track().id);
@@ -64,5 +72,42 @@ export class TrackLane {
 
   onDistortionToggle(): void {
     this.distortionToggle.emit(this.track().id);
+  }
+
+  onDelayTimeChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const time = parseInt(target.value);
+    this.delayChange.emit({
+      trackId: this.track().id,
+      time,
+      feedback: this.delayFeedback(),
+      wetDry: this.delayWetDry()
+    });
+  }
+
+  onDelayFeedbackChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const feedback = parseInt(target.value);
+    this.delayChange.emit({
+      trackId: this.track().id,
+      time: this.delayTime(),
+      feedback,
+      wetDry: this.delayWetDry()
+    });
+  }
+
+  onDelayWetDryChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const wetDry = parseInt(target.value);
+    this.delayChange.emit({
+      trackId: this.track().id,
+      time: this.delayTime(),
+      feedback: this.delayFeedback(),
+      wetDry
+    });
+  }
+
+  onDelayToggle(): void {
+    this.delayToggle.emit(this.track().id);
   }
 }

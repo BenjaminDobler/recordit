@@ -57,6 +57,59 @@
             title="Distortion amount" />
           <span class="effect-value">{{ distortionAmount().toFixed(0) }}</span>
         </div>
+        <div class="effects-control">
+          <div class="effect-header">
+            <span class="effect-label">Delay</span>
+            <button
+              class="effect-toggle delay-toggle"
+              [class.active]="delayEnabled()"
+              (click)="onDelayToggle()"
+              title="Toggle delay">
+              {{ delayEnabled() ? 'ON' : 'OFF' }}
+            </button>
+          </div>
+          <div class="delay-params">
+            <div class="delay-param">
+              <span class="param-label">Time</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                [value]="delayTime()"
+                (input)="onDelayTimeChange($event)"
+                class="effect-slider"
+                [disabled]="!delayEnabled()"
+                title="Delay time" />
+              <span class="param-value">{{ delayTime().toFixed(0) }}</span>
+            </div>
+            <div class="delay-param">
+              <span class="param-label">Feedback</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                [value]="delayFeedback()"
+                (input)="onDelayFeedbackChange($event)"
+                class="effect-slider"
+                [disabled]="!delayEnabled()"
+                title="Feedback amount" />
+              <span class="param-value">{{ delayFeedback().toFixed(0) }}</span>
+            </div>
+            <div class="delay-param">
+              <span class="param-label">Mix</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                [value]="delayWetDry()"
+                (input)="onDelayWetDryChange($event)"
+                class="effect-slider"
+                [disabled]="!delayEnabled()"
+                title="Wet/dry mix" />
+              <span class="param-value">{{ delayWetDry().toFixed(0) }}</span>
+            </div>
+          </div>
+        </div>
         <button
           class="delete-button"
           (click)="onDeleteClick()"

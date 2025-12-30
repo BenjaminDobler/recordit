@@ -103,4 +103,23 @@ export class TimelineContainer {
   onDistortionToggle(trackId: string): void {
     this.clipManagerService.toggleTrackEffect(trackId, EffectType.Distortion);
   }
+
+  /**
+   * Updates delay parameters for a track
+   */
+  onDelayChange(event: { trackId: string; time: number; feedback: number; wetDry: number }): void {
+    this.clipManagerService.updateTrackEffect(
+      event.trackId,
+      EffectType.Delay,
+      { time: event.time, feedback: event.feedback, wetDry: event.wetDry },
+      true
+    );
+  }
+
+  /**
+   * Toggles delay effect on/off for a track
+   */
+  onDelayToggle(trackId: string): void {
+    this.clipManagerService.toggleTrackEffect(trackId, EffectType.Delay);
+  }
 }

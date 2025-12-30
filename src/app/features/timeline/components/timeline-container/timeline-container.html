@@ -35,7 +35,9 @@
         (soloToggle)="onTrackSoloToggle($event)"
         (clipPositionChange)="onClipPositionChange($event)"
         (distortionChange)="onDistortionChange($event)"
-        (distortionToggle)="onDistortionToggle($event)" />
+        (distortionToggle)="onDistortionToggle($event)"
+        (delayChange)="onDelayChange($event)"
+        (delayToggle)="onDelayToggle($event)" />
     }
     @empty {
       <div class="no-tracks-message">

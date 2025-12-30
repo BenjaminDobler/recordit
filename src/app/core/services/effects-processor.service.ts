@@ -39,6 +39,59 @@ export class EffectsProcessorService {
   }
 
   /**
+   * Creates a delay effect with feedback
+   * @param time Delay time in seconds (0-1)
+   * @param feedback Feedback amount (0-100)
+   * @param wetDry Wet/dry mix (0-100)
+   * @returns Object containing delay nodes and connections
+   */
+  createDelay(time: number, feedback: number, wetDry: number): {
+    input: GainNode;
+    output: GainNode;
+    delayNode: DelayNode;
+    feedbackNode: GainNode;
+  } {
+    const audioContext = this.audioContextService.getContext();
+
+    // Create nodes
+    const inputGain = audioContext.createGain();
+    const delayNode = audioContext.createDelay(5.0); // Max 5 seconds
+    const feedbackNode = audioContext.createGain();
+    const wetGain = audioContext.createGain();
+    const dryGain = audioContext.createGain();
+    const outputGain = audioContext.createGain();
+
+    // Set parameters
+    delayNode.delayTime.value = Math.max(0, Math.min(1, time));
+    feedbackNode.gain.value = Math.max(0, Math.min(100, feedback)) / 100;
+
+    const wetAmount = Math.max(0, Math.min(100, wetDry)) / 100;
+    wetGain.gain.value = wetAmount;
+    dryGain.gain.value = 1 - wetAmount;
+
+    // Connect the delay chain
+    // Input splits to dry and wet paths
+    inputGain.connect(dryGain);
+    inputGain.connect(delayNode);
+
+    // Delay path with feedback
+    delayNode.connect(feedbackNode);
+    delayNode.connect(wetGain);
+    feedbackNode.connect(delayNode); // Feedback loop
+
+    // Mix wet and dry to output
+    wetGain.connect(outputGain);
+    dryGain.connect(outputGain);
+
+    return {
+      input: inputGain,
+      output: outputGain,
+      delayNode,
+      feedbackNode
+    };
+  }
+
+  /**
    * Creates a bypass (no effect) node
    */
   createBypass(): GainNode {

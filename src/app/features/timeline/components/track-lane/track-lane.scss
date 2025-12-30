@@ -264,6 +264,35 @@
             color: #7f8c8d;
             text-align: center;
           }
+
+          .delay-params {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .delay-param {
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+
+              .param-label {
+                font-size: 9px;
+                color: #95a5a6;
+                font-weight: 500;
+              }
+
+              .param-value {
+                font-size: 8px;
+                color: #7f8c8d;
+                text-align: center;
+              }
+            }
+          }
+
+          .delay-toggle.active {
+            background: #16a085;
+            border-color: #16a085;
+          }
         }
 
         .delete-button {
