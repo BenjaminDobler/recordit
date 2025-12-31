@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { ClipManagerService } from '../../features/timeline/services/clip-manager.service';
-import { EffectsProcessorService } from './effects-processor.service';
 import { AudioContextService } from './audio-context.service';
 import { EffectType } from '../models/effect.model';
 import { saveAs } from 'file-saver';
@@ -12,7 +11,6 @@ export type ExportFormat = 'wav' | 'mp3' | 'webm';
 })
 export class ExportService {
   private clipManagerService = inject(ClipManagerService);
-  private effectsProcessorService = inject(EffectsProcessorService);
   private audioContextService = inject(AudioContextService);
 
   /**
