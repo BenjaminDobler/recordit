@@ -30,8 +30,8 @@
         [waveformData]="clip().waveformData!"
         [width]="clipWidth()"
         [height]="60"
-        [trimStart]="effectiveTrimStart()"
-        [trimEnd]="effectiveTrimEnd()"
+        [trimStart]="clip().trimStart"
+        [trimEnd]="clip().trimEnd"
         [duration]="clip().duration" />
     </div>
   }

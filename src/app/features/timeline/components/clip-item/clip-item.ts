@@ -44,25 +44,11 @@ export class ClipItem {
   clipDelete = output<string>();
 
   /**
-   * Effective trim start (live during trimming, committed after)
-   */
-  effectiveTrimStart = computed(() => {
-    return this.isTrimming() ? this.currentTrimStart() : this.clip().trimStart;
-  });
-
-  /**
-   * Effective trim end (live during trimming, committed after)
-   */
-  effectiveTrimEnd = computed(() => {
-    return this.isTrimming() ? this.currentTrimEnd() : this.clip().trimEnd;
-  });
-
-  /**
    * Calculate the width of the clip in pixels (accounting for trim)
    */
   clipWidth = computed(() => {
     const clip = this.clip();
-    const visibleDuration = clip.duration - this.effectiveTrimStart() - this.effectiveTrimEnd();
+    const visibleDuration = clip.duration - clip.trimStart - clip.trimEnd;
     return visibleDuration * this.pixelsPerSecond();
   });
 
@@ -173,17 +159,29 @@ export class ClipItem {
     const deltaX = event.clientX - this.dragStartX;
     const deltaTime = deltaX / this.pixelsPerSecond();
 
+    let newTrimStart = this.clip().trimStart;
+    let newTrimEnd = this.clip().trimEnd;
+
     if (this.trimMode() === 'left') {
       // Trim from start
-      const newTrimStart = Math.max(0, this.clip().trimStart + deltaTime);
-      const maxTrim = this.clip().duration - this.clip().trimEnd - 0.1; // min 0.1s visible
-      this.currentTrimStart.set(Math.min(newTrimStart, maxTrim));
+      newTrimStart = Math.max(0, this.currentTrimStart() + deltaTime);
+      const maxTrim = this.clip().duration - newTrimEnd - 0.1; // min 0.1s visible
+      newTrimStart = Math.min(newTrimStart, maxTrim);
+      this.currentTrimStart.set(newTrimStart);
     } else {
       // Trim from end
-      const newTrimEnd = Math.max(0, this.clip().trimEnd - deltaTime);
-      const maxTrim = this.clip().duration - this.clip().trimStart - 0.1; // min 0.1s visible
-      this.currentTrimEnd.set(Math.min(newTrimEnd, maxTrim));
+      newTrimEnd = Math.max(0, this.currentTrimEnd() - deltaTime);
+      const maxTrim = this.clip().duration - newTrimStart - 0.1; // min 0.1s visible
+      newTrimEnd = Math.min(newTrimEnd, maxTrim);
+      this.currentTrimEnd.set(newTrimEnd);
     }
+
+    // Emit changes continuously for live updates
+    this.trimChange.emit({
+      clipId: this.clip().id,
+      trimStart: newTrimStart,
+      trimEnd: newTrimEnd
+    });
   };
 
   /**
@@ -192,14 +190,7 @@ export class ClipItem {
   private onTrimUp = (): void => {
     if (!this.isTrimming()) return;
 
-    // Emit trim change
-    this.trimChange.emit({
-      clipId: this.clip().id,
-      trimStart: this.currentTrimStart(),
-      trimEnd: this.currentTrimEnd()
-    });
-
-    // Reset state
+    // Reset state (trim changes already emitted during drag)
     this.isTrimming.set(false);
     this.trimMode.set(null);
 
