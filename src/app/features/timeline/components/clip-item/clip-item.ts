@@ -85,7 +85,7 @@ export class ClipItem {
 
     // If trimming left edge, adjust position
     if (this.isTrimming() && this.trimMode() === 'left') {
-      const trimDelta = this.effectiveTrimStart() - clip.trimStart;
+      const trimDelta = this.effectiveTrimStart() - this.currentTrimStart();
       leftPos += trimDelta * this.pixelsPerSecond();
     }
 
