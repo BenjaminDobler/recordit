@@ -159,21 +159,19 @@ export class ClipItem {
     const deltaX = event.clientX - this.dragStartX;
     const deltaTime = deltaX / this.pixelsPerSecond();
 
-    let newTrimStart = this.clip().trimStart;
-    let newTrimEnd = this.clip().trimEnd;
+    let newTrimStart = this.currentTrimStart();
+    let newTrimEnd = this.currentTrimEnd();
 
     if (this.trimMode() === 'left') {
-      // Trim from start
+      // Trim from start - add delta to initial stored value
       newTrimStart = Math.max(0, this.currentTrimStart() + deltaTime);
-      const maxTrim = this.clip().duration - newTrimEnd - 0.1; // min 0.1s visible
+      const maxTrim = this.clip().duration - this.currentTrimEnd() - 0.1; // min 0.1s visible
       newTrimStart = Math.min(newTrimStart, maxTrim);
-      this.currentTrimStart.set(newTrimStart);
     } else {
-      // Trim from end
+      // Trim from end - subtract delta from initial stored value
       newTrimEnd = Math.max(0, this.currentTrimEnd() - deltaTime);
-      const maxTrim = this.clip().duration - newTrimStart - 0.1; // min 0.1s visible
+      const maxTrim = this.clip().duration - this.currentTrimStart() - 0.1; // min 0.1s visible
       newTrimEnd = Math.min(newTrimEnd, maxTrim);
-      this.currentTrimEnd.set(newTrimEnd);
     }
 
     // Emit changes continuously for live updates
