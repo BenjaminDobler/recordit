@@ -79,7 +79,7 @@ export class PlaybackService {
 
       // Create effects chain
       // Effects are applied in reverse order (last effect connects to output)
-      // Signal flow: source → boost → distortion → flanger → delay → reverb → tremolo → gain → destination
+      // Signal flow: source → boost → distortion → flanger → delay → reverb → tremolo → gain → pan → destination
       let effectsChain: AudioNode = gainNode;
 
       // Apply tremolo effect if enabled (last in chain - amplitude modulation)
@@ -149,8 +149,13 @@ export class PlaybackService {
         effectsChain = boostNode;
       }
 
-      // Connect final node to destination
-      gainNode.connect(audioContext.destination);
+      // Create and apply pan node
+      const panNode = audioContext.createStereoPanner();
+      panNode.pan.value = track.pan;
+
+      // Connect final chain: gain → pan → destination
+      gainNode.connect(panNode);
+      panNode.connect(audioContext.destination);
 
       // Create source nodes for each clip in the track
       const sources: AudioBufferSourceNode[] = track.clips

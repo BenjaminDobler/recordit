@@ -49,6 +49,25 @@
           title="Volume" />
         <span class="volume-value">{{ (track().volume * 100).toFixed(0) }}</span>
       </div>
+      <div class="pan-control">
+        <span class="pan-label">Pan</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          [value]="track().pan * 50 + 50"
+          (input)="onPanChange($event)"
+          title="Pan (Left/Right)" />
+        <span class="pan-value">
+          @if (track().pan < -0.1) {
+            L{{ (Math.abs(track().pan) * 100).toFixed(0) }}
+          } @else if (track().pan > 0.1) {
+            R{{ (track().pan * 100).toFixed(0) }}
+          } @else {
+            C
+          }
+        </span>
+      </div>
     </div>
   </div>
   <div class="track-content">

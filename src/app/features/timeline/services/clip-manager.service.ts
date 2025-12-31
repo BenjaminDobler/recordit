@@ -26,6 +26,7 @@ export class ClipManagerService {
       id: uuidv4(),
       name: 'Track 1',
       volume: 1.0,
+      pan: 0,
       muted: false,
       solo: false,
       armed: false,
@@ -155,6 +156,7 @@ export class ClipManagerService {
       id: uuidv4(),
       name: `Track ${trackNumber}`,
       volume: 1.0,
+      pan: 0,
       muted: false,
       solo: false,
       armed: false,
@@ -228,6 +230,17 @@ export class ClipManagerService {
     const tracks = this.tracksSubject.value;
     const updatedTracks = tracks.map(track =>
       track.id === trackId ? { ...track, volume: Math.max(0, Math.min(1, volume)) } : track
+    );
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Updates a track's pan (-1 to 1, where -1 is left, 0 is center, 1 is right)
+   */
+  updateTrackPan(trackId: string, pan: number): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track =>
+      track.id === trackId ? { ...track, pan: Math.max(-1, Math.min(1, pan)) } : track
     );
     this.tracksSubject.next(updatedTracks);
   }

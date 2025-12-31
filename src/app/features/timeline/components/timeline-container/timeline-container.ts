@@ -68,6 +68,13 @@ export class TimelineContainer {
   }
 
   /**
+   * Updates a track's pan
+   */
+  onTrackPanChange(event: { trackId: string; pan: number }): void {
+    this.clipManagerService.updateTrackPan(event.trackId, event.pan);
+  }
+
+  /**
    * Toggles a track's mute state
    */
   onTrackMuteToggle(trackId: string): void {

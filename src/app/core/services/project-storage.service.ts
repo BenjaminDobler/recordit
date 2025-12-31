@@ -22,6 +22,7 @@ interface SerializedTrack {
   id: string;
   name: string;
   volume: number;
+  pan: number;
   muted: boolean;
   solo: boolean;
   armed: boolean;
@@ -89,6 +90,7 @@ export class ProjectStorageService {
         id: track.id,
         name: track.name,
         volume: track.volume,
+        pan: track.pan,
         muted: track.muted,
         solo: track.solo,
         armed: track.armed,
@@ -165,6 +167,7 @@ export class ProjectStorageService {
         id: serializedTrack.id,
         name: serializedTrack.name,
         volume: serializedTrack.volume,
+        pan: serializedTrack.pan ?? 0, // Default to center if not present (backwards compatibility)
         muted: serializedTrack.muted,
         solo: serializedTrack.solo,
         armed: serializedTrack.armed,

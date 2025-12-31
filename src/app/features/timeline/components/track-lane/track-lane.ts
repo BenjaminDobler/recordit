@@ -19,6 +19,9 @@ export class TrackLane {
 
   showEffectsPanel = signal(false);
 
+  // Expose Math for template
+  Math = Math;
+
   // Computed effect states
   distortionEffect = computed(() => this.track().effects.find(e => e.type === EffectType.Distortion));
   distortionAmount = computed(() => this.distortionEffect()?.parameters['amount'] ?? 0);
@@ -34,6 +37,7 @@ export class TrackLane {
   armToggle = output<string>();
   trackDelete = output<string>();
   volumeChange = output<{ trackId: string; volume: number }>();
+  panChange = output<{ trackId: string; pan: number }>();
   muteToggle = output<string>();
   soloToggle = output<string>();
   clipPositionChange = output<{ clipId: string; newStartTime: number }>();
@@ -60,6 +64,13 @@ export class TrackLane {
     const target = event.target as HTMLInputElement;
     const volume = parseInt(target.value) / 100;
     this.volumeChange.emit({ trackId: this.track().id, volume });
+  }
+
+  onPanChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const sliderValue = parseInt(target.value);
+    const pan = (sliderValue - 50) / 50; // Convert 0-100 to -1 to 1 (0=left, 50=center, 100=right)
+    this.panChange.emit({ trackId: this.track().id, pan });
   }
 
   onMuteClick(): void {
