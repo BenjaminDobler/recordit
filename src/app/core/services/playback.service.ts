@@ -61,6 +61,9 @@ export class PlaybackService {
     const audioContext = this.audioContextService.getContext();
     const tracks = this.clipManagerService.getTracks();
 
+    // Get current playhead position
+    const playheadTime = this.currentTimeSubject.value;
+
     // Check if any tracks have solo enabled
     const hasSoloTracks = tracks.some(track => track.solo);
 
@@ -105,27 +108,50 @@ export class PlaybackService {
       gainNode.connect(audioContext.destination);
 
       // Create source nodes for each clip in the track
-      const sources: AudioBufferSourceNode[] = track.clips.map(clip => {
-        const source = audioContext.createBufferSource();
-        source.buffer = clip.audioBuffer;
+      const sources: AudioBufferSourceNode[] = track.clips
+        .map(clip => {
+          // Calculate visible duration and offset for trimmed clips
+          const visibleDuration = clip.duration - clip.trimStart - clip.trimEnd;
+          const clipEndTime = clip.startTime + visibleDuration;
 
-        // Connect to the effects chain (or directly to gain if no effects)
-        source.connect(effectsChain);
+          // Skip clips that have already finished playing at the current playhead position
+          if (clipEndTime <= playheadTime) {
+            return null;
+          }
 
-        // Calculate visible duration and offset for trimmed clips
-        const visibleDuration = clip.duration - clip.trimStart - clip.trimEnd;
-        const offset = clip.trimStart;
+          const source = audioContext.createBufferSource();
+          source.buffer = clip.audioBuffer;
 
-        // Schedule the clip to start at its position on the timeline
-        // source.start(when, offset, duration) - plays only the visible portion
-        source.start(
-          audioContext.currentTime + clip.startTime,
-          offset,
-          visibleDuration
-        );
+          // Connect to the effects chain (or directly to gain if no effects)
+          source.connect(effectsChain);
 
-        return source;
-      });
+          // Calculate when to start the clip relative to current time
+          let whenToStart: number;
+          let offset: number;
+          let duration: number;
+
+          if (clip.startTime <= playheadTime) {
+            // Clip should already be playing - start immediately
+            whenToStart = audioContext.currentTime;
+            // Offset into the buffer based on how far into the clip we are
+            const timeIntoClip = playheadTime - clip.startTime;
+            offset = clip.trimStart + timeIntoClip;
+            // Duration is remaining visible duration
+            duration = visibleDuration - timeIntoClip;
+          } else {
+            // Clip starts in the future - schedule it normally
+            whenToStart = audioContext.currentTime + (clip.startTime - playheadTime);
+            offset = clip.trimStart;
+            duration = visibleDuration;
+          }
+
+          // Schedule the clip
+          // source.start(when, offset, duration) - plays only the visible portion
+          source.start(whenToStart, offset, duration);
+
+          return source;
+        })
+        .filter((source): source is AudioBufferSourceNode => source !== null);
 
       return {
         trackId: track.id,
@@ -134,8 +160,8 @@ export class PlaybackService {
       };
     });
 
-    // Start playback state
-    this.startTime = audioContext.currentTime;
+    // Start playback state - account for playhead offset
+    this.startTime = audioContext.currentTime - playheadTime;
     this.playbackStateSubject.next(PlaybackState.Playing);
 
     // Start playhead animation
