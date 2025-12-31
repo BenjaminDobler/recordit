@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { RecordControls } from './features/recorder/components/record-controls/record-controls';
 import { TransportControls } from './features/transport/components/transport-controls/transport-controls';
 import { TimelineContainer } from './features/timeline/components/timeline-container/timeline-container';
+import { ProjectManager } from './features/project/project-manager';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RecordControls, TransportControls, TimelineContainer],
+  imports: [RouterOutlet, RecordControls, TransportControls, TimelineContainer, ProjectManager],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

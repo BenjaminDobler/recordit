@@ -137,6 +137,13 @@ export class ClipManagerService {
   }
 
   /**
+   * Sets all tracks (used when loading a project)
+   */
+  setTracks(tracks: AudioTrack[]): void {
+    this.tracksSubject.next(tracks);
+  }
+
+  /**
    * Adds a new track
    */
   addTrack(): AudioTrack {
@@ -290,11 +297,33 @@ export class ClipManagerService {
     const updatedTracks = tracks.map(track => {
       if (track.id !== trackId) return track;
 
-      const effects = track.effects.map(effect =>
-        effect.type === effectType ? { ...effect, enabled: !effect.enabled } : effect
-      );
+      const existingEffect = track.effects.find(e => e.type === effectType);
 
-      return { ...track, effects };
+      if (existingEffect) {
+        // Toggle existing effect
+        const effects = track.effects.map(effect =>
+          effect.type === effectType ? { ...effect, enabled: !effect.enabled } : effect
+        );
+        return { ...track, effects };
+      } else {
+        // Create new effect with default parameters
+        let defaultParams: Record<string, number> = {};
+
+        if (effectType === EffectType.Distortion) {
+          defaultParams = { amount: 50 };
+        } else if (effectType === EffectType.Delay) {
+          defaultParams = { time: 30, feedback: 30, wetDry: 50 };
+        }
+
+        const newEffect: Effect = {
+          id: uuidv4(),
+          type: effectType,
+          enabled: true,
+          parameters: defaultParams
+        };
+
+        return { ...track, effects: [...track.effects, newEffect] };
+      }
     });
 
     this.tracksSubject.next(updatedTracks);

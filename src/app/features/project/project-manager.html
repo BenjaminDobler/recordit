@@ -1,0 +1,126 @@
+<div class="project-manager">
+  <div class="project-actions">
+    <button class="btn-primary" (click)="openSaveDialog()">
+      Save Project
+    </button>
+    <button class="btn-secondary" (click)="openLoadDialog()">
+      Load Project
+    </button>
+  </div>
+
+  <!-- Save Dialog -->
+  @if (showSaveDialog()) {
+    <div class="modal-overlay" (click)="closeSaveDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Save Project</h3>
+          <button class="close-button" (click)="closeSaveDialog()">×</button>
+        </div>
+
+        <div class="modal-body">
+          @if (errorMessage()) {
+            <div class="error-message">{{ errorMessage() }}</div>
+          }
+          @if (successMessage()) {
+            <div class="success-message">{{ successMessage() }}</div>
+          }
+
+          <div class="form-group">
+            <label for="projectName">Project Name:</label>
+            <input
+              type="text"
+              id="projectName"
+              [(ngModel)]="projectName"
+              [disabled]="isSaving()"
+              placeholder="Enter project name"
+              (keyup.enter)="saveProject()"
+            />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn-secondary"
+            (click)="closeSaveDialog()"
+            [disabled]="isSaving()"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn-primary"
+            (click)="saveProject()"
+            [disabled]="isSaving()"
+          >
+            {{ isSaving() ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Load Dialog -->
+  @if (showLoadDialog()) {
+    <div class="modal-overlay" (click)="closeLoadDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Load Project</h3>
+          <button class="close-button" (click)="closeLoadDialog()">×</button>
+        </div>
+
+        <div class="modal-body">
+          @if (errorMessage()) {
+            <div class="error-message">{{ errorMessage() }}</div>
+          }
+          @if (successMessage()) {
+            <div class="success-message">{{ successMessage() }}</div>
+          }
+
+          @if (savedProjects().length === 0) {
+            <div class="no-projects">
+              <p>No saved projects found.</p>
+            </div>
+          } @else {
+            <div class="projects-list">
+              @for (project of savedProjects(); track project.id) {
+                <div class="project-item">
+                  <div class="project-info">
+                    <div class="project-name">{{ project.name }}</div>
+                    <div class="project-date">
+                      Last updated: {{ formatDate(project.updatedAt) }}
+                    </div>
+                  </div>
+                  <div class="project-actions-buttons">
+                    <button
+                      class="btn-load"
+                      (click)="loadProject(project.id)"
+                      [disabled]="isLoading()"
+                    >
+                      Load
+                    </button>
+                    <button
+                      class="btn-delete"
+                      (click)="deleteProject(project.id, project.name)"
+                      [disabled]="isLoading()"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn-secondary"
+            (click)="closeLoadDialog()"
+            [disabled]="isLoading()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
