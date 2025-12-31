@@ -22,6 +22,22 @@ export class RecordControls {
   RecordingState = RecordingState;
   lastRecordedBlob: Blob | null = null;
   clipCounter = 0;
+  private currentState: RecordingState = RecordingState.Idle;
+
+  constructor() {
+    // Track recording state
+    this.recordingState$.subscribe(state => {
+      this.currentState = state;
+    });
+  }
+
+  onToggleRecord(): void {
+    if (this.currentState === RecordingState.Recording) {
+      this.onStop();
+    } else {
+      this.onRecord();
+    }
+  }
 
   async onRecord(): Promise<void> {
     try {

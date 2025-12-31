@@ -2,7 +2,7 @@
   <button
     class="record-btn"
     [class.recording]="(recordingState$ | async) === RecordingState.Recording"
-    (click)="(recordingState$ | async) === RecordingState.Recording ? onStop() : onRecord()">
+    (click)="onToggleRecord()">
     <svg viewBox="0 0 24 24" width="14" height="14">
       <circle fill="currentColor" cx="12" cy="12" r="8"/>
     </svg>
