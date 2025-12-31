@@ -1,85 +1,54 @@
+// Logic Pro Transport Controls
 .transport-controls {
-  padding: 20px;
-  background: #f5f5f5;
-  border-radius: 8px;
-  max-width: 500px;
-  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  h2 {
-    margin-top: 0;
-    color: #333;
+.transport-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #3a3a3a;
+  color: #d4d4d4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+  &:hover:not(:disabled) {
+    background: #4a4a4a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   }
 
-  .buttons {
-    display: flex;
-    gap: 12px;
-    margin: 20px 0;
-
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .button-icon {
-        font-size: 16px;
-        line-height: 1;
-      }
-    }
-
-    .play-button {
-      background: #27ae60;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background: #229954;
-      }
-
-      &.playing {
-        background: #229954;
-        animation: pulse 1.5s infinite;
-      }
-    }
-
-    .stop-button {
-      background: #e67e22;
-      color: white;
-
-      &:hover:not(:disabled) {
-        background: #d35400;
-      }
-    }
+  &:active:not(:disabled) {
+    transform: scale(0.95);
   }
 
-  .status {
-    margin-top: 16px;
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
 
-    .info-text {
-      margin: 0;
-      padding: 12px;
-      background: white;
-      border-radius: 4px;
-      font-size: 14px;
-      color: #666;
+  svg {
+    pointer-events: none;
+  }
+}
+
+.play-btn {
+  &.active {
+    background: #4a90e2;
+    color: white;
+
+    &:hover {
+      background: #5a9ff2;
     }
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+.stop-btn {
+  // Default styling
 }

@@ -1,31 +1,10 @@
 <div class="record-controls">
-  <h2>Record Controls</h2>
-
-  <div class="buttons">
-    <button
-      class="record-button"
-      [class.recording]="(recordingState$ | async) === RecordingState.Recording"
-      [disabled]="(recordingState$ | async) === RecordingState.Recording"
-      (click)="onRecord()">
-      <span class="button-icon">●</span>
-      {{ (recordingState$ | async) === RecordingState.Recording ? 'Recording...' : 'Record' }}
-    </button>
-
-    <button
-      class="stop-button"
-      [disabled]="(recordingState$ | async) !== RecordingState.Recording"
-      (click)="onStop()">
-      <span class="button-icon">■</span>
-      Stop
-    </button>
-  </div>
-
-  <div class="status" *ngIf="(recordingState$ | async) === RecordingState.Recording">
-    <span class="recording-indicator"></span>
-    Recording in progress...
-  </div>
-
-  <div class="info" *ngIf="lastRecordedBlob">
-    <p>Last recording: {{ (lastRecordedBlob.size / 1024).toFixed(2) }} KB</p>
-  </div>
+  <button
+    class="record-btn"
+    [class.recording]="(recordingState$ | async) === RecordingState.Recording"
+    (click)="(recordingState$ | async) === RecordingState.Recording ? onStop() : onRecord()">
+    <svg viewBox="0 0 24 24" width="14" height="14">
+      <circle fill="currentColor" cx="12" cy="12" r="8"/>
+    </svg>
+  </button>
 </div>

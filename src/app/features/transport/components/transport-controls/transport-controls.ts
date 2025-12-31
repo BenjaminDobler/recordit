@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlaybackService, PlaybackState } from '../../../../core/services/playback.service';
 import { AudioStateService } from '../../../../core/services/audio-state.service';
+import { RecordControls } from '../../../recorder/components/record-controls/record-controls';
 
 @Component({
   selector: 'app-transport-controls',
-  imports: [CommonModule],
+  imports: [CommonModule, RecordControls],
   templateUrl: './transport-controls.html',
   styleUrl: './transport-controls.scss',
   standalone: true

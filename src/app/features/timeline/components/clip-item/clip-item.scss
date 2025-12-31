@@ -1,26 +1,28 @@
+// Logic Pro Clip Styling
 .clip-item {
   position: absolute;
-  height: 60px;
+  height: 48px;
   top: 0;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #d4af37 0%, #c19a28 100%);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
   cursor: grab;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.05s, box-shadow 0.05s;
   overflow: hidden;
   user-select: none;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   }
 
   &.dragging {
     cursor: grabbing;
-    opacity: 0.8;
+    opacity: 0.7;
     z-index: 1000;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    transform: scale(1.02);
-    transition: none; // Disable transitions while dragging
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: none;
   }
 
   .waveform-container {
@@ -29,34 +31,33 @@
     left: 0;
     right: 0;
     bottom: 0;
-    opacity: 0.6;
+    opacity: 0.5;
     pointer-events: none;
     overflow: hidden;
   }
 
   .clip-content {
     position: relative;
-    padding: 8px 12px;
+    padding: 6px 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     height: 100%;
-    color: white;
-    font-size: 12px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 11px;
     z-index: 1;
 
     .clip-name {
       font-weight: 600;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .clip-duration {
-      font-size: 11px;
-      opacity: 0.9;
+      font-size: 10px;
+      opacity: 0.7;
     }
   }
 }

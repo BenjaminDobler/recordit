@@ -1,14 +1,21 @@
 <div class="app-container">
-  <header class="app-header">
-    <h1>{{ title() }}</h1>
-    <p>Browser-based Digital Audio Workstation</p>
-  </header>
+  <!-- Top Control Bar (Logic Pro style) -->
+  <div class="control-bar">
+    <div class="control-bar-left">
+      <h1 class="app-title">{{ title() }}</h1>
+    </div>
 
-  <app-project-manager></app-project-manager>
+    <div class="control-bar-center">
+      <app-transport-controls></app-transport-controls>
+    </div>
 
+    <div class="control-bar-right">
+      <app-project-manager></app-project-manager>
+    </div>
+  </div>
+
+  <!-- Main Timeline Area -->
   <main class="app-main">
-    <app-record-controls></app-record-controls>
-    <app-transport-controls></app-transport-controls>
     <app-timeline-container></app-timeline-container>
     <router-outlet />
   </main>

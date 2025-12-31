@@ -56,9 +56,9 @@ export class WaveformDisplay implements AfterViewInit {
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
 
-    // Draw waveform
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    // Draw waveform (dark color for golden clips - Logic Pro style)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.lineWidth = 1;
 
     const barWidth = width / data.length;
