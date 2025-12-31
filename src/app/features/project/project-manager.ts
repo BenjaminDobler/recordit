@@ -2,7 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectStorageService } from '../../core/services/project-storage.service';
-import { ExportService } from '../../core/services/export.service';
+import { ExportService, ExportFormat } from '../../core/services/export.service';
 
 interface SavedProject {
   id: string;
@@ -28,12 +28,19 @@ export class ProjectManager {
   showExportDialog = signal(false);
   projectName = signal('');
   exportFilename = signal('');
+  exportFormat = signal<ExportFormat>('wav');
   isSaving = signal(false);
   isLoading = signal(false);
   isExporting = signal(false);
   exportProgress = signal(0);
   errorMessage = signal('');
   successMessage = signal('');
+
+  exportFormats: { value: ExportFormat; label: string }[] = [
+    { value: 'wav', label: 'WAV (Uncompressed)' },
+    { value: 'mp3', label: 'MP3 (Compressed)' },
+    { value: 'webm', label: 'WebM (Browser)' }
+  ];
 
   projectDuration = computed(() => {
     const duration = this.exportService.getProjectDuration();
@@ -186,7 +193,8 @@ export class ProjectManager {
    */
   openExportDialog(): void {
     this.showExportDialog.set(true);
-    this.exportFilename.set('my-mix.webm');
+    this.exportFilename.set('my-mix');
+    this.exportFormat.set('wav');
     this.errorMessage.set('');
     this.successMessage.set('');
     this.exportProgress.set(0);
@@ -206,14 +214,20 @@ export class ProjectManager {
    */
   async exportMix(): Promise<void> {
     const filename = this.exportFilename().trim();
+    const format = this.exportFormat();
 
     if (!filename) {
       this.errorMessage.set('Please enter a filename');
       return;
     }
 
-    // Ensure .webm extension
-    const finalFilename = filename.endsWith('.webm') ? filename : `${filename}.webm`;
+    // Ensure correct extension based on format
+    let finalFilename = filename;
+    const extension = `.${format}`;
+
+    // Remove any existing extension
+    const withoutExtension = filename.replace(/\.(wav|mp3|webm|mp4|mpeg)$/i, '');
+    finalFilename = `${withoutExtension}${extension}`;
 
     this.isExporting.set(true);
     this.errorMessage.set('');
@@ -221,7 +235,7 @@ export class ProjectManager {
     this.exportProgress.set(0);
 
     try {
-      await this.exportService.exportMix(finalFilename, (progress) => {
+      await this.exportService.exportMix(finalFilename, format, (progress) => {
         this.exportProgress.set(progress);
       });
 

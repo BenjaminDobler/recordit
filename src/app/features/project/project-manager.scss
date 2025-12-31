@@ -139,7 +139,8 @@
     font-weight: 500;
   }
 
-  input {
+  input,
+  select {
     width: 100%;
     padding: 10px;
     border: 1px solid #444;
@@ -158,6 +159,18 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  .filename-hint {
+    display: block;
+    margin-top: 6px;
+    color: #999;
+    font-size: 12px;
+    font-style: italic;
   }
 }
 

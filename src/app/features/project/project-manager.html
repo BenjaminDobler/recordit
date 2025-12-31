@@ -145,8 +145,22 @@
           }
 
           <div class="export-info">
-            <p>Export your project as a WebM audio file.</p>
+            <p>Export your project as an audio file.</p>
             <p class="duration-info">Project duration: <strong>{{ projectDuration() }}s</strong></p>
+          </div>
+
+          <div class="form-group">
+            <label for="exportFormat">Format:</label>
+            <select
+              id="exportFormat"
+              [(ngModel)]="exportFormat"
+              [disabled]="isExporting()"
+              class="format-select"
+            >
+              @for (format of exportFormats; track format.value) {
+                <option [value]="format.value">{{ format.label }}</option>
+              }
+            </select>
           </div>
 
           <div class="form-group">
@@ -156,9 +170,10 @@
               id="exportFilename"
               [(ngModel)]="exportFilename"
               [disabled]="isExporting()"
-              placeholder="Enter filename (e.g., my-mix.webm)"
+              placeholder="Enter filename (without extension)"
               (keyup.enter)="exportMix()"
             />
+            <small class="filename-hint">Extension will be added automatically based on format</small>
           </div>
 
           @if (isExporting()) {
