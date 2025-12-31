@@ -2,6 +2,8 @@
 
 A modern, browser-based Digital Audio Workstation (DAW) built with Angular 18+ and the Web Audio API. RecordIt enables multi-track recording, audio editing, and real-time effects processing entirely in your browser.
 
+**[🎸 Try Live Demo](https://benjamindobbler.github.io/recordit/)**
+
 ## Features
 
 ### Multi-Track Recording
