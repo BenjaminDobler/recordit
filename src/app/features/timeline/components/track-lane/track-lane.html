@@ -1,121 +1,53 @@
 <div class="track-lane" [class.armed]="track().armed">
   <div class="track-header">
+    <div class="track-icon">{{ track().name.charAt(0) }}</div>
     <div class="track-info">
       <h3 class="track-name">{{ track().name }}</h3>
       <div class="track-controls">
         <button
-          class="arm-button"
+          class="control-btn arm-btn"
           [class.active]="track().armed"
           (click)="onArmClick()"
           title="Arm track for recording">
-          {{ track().armed ? '◉' : '○' }}
+          R
         </button>
         <button
-          class="mute-button"
+          class="control-btn mute-btn"
           [class.active]="track().muted"
           (click)="onMuteClick()"
           title="Mute track">
           M
         </button>
         <button
-          class="solo-button"
+          class="control-btn solo-btn"
           [class.active]="track().solo"
           (click)="onSoloClick()"
           title="Solo track">
           S
         </button>
-        <div class="volume-control">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [value]="track().volume * 100"
-            (input)="onVolumeChange($event)"
-            class="volume-slider"
-            title="Volume" />
-          <span class="volume-label">{{ (track().volume * 100).toFixed(0) }}%</span>
-        </div>
-        <div class="effects-control">
-          <div class="effect-header">
-            <span class="effect-label">Distortion</span>
-            <button
-              class="effect-toggle"
-              [class.active]="distortionEnabled()"
-              (click)="onDistortionToggle()"
-              title="Toggle distortion">
-              {{ distortionEnabled() ? 'ON' : 'OFF' }}
-            </button>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [value]="distortionAmount()"
-            (input)="onDistortionChange($event)"
-            class="effect-slider"
-            [disabled]="!distortionEnabled()"
-            title="Distortion amount" />
-          <span class="effect-value">{{ distortionAmount().toFixed(0) }}</span>
-        </div>
-        <div class="effects-control">
-          <div class="effect-header">
-            <span class="effect-label">Delay</span>
-            <button
-              class="effect-toggle delay-toggle"
-              [class.active]="delayEnabled()"
-              (click)="onDelayToggle()"
-              title="Toggle delay">
-              {{ delayEnabled() ? 'ON' : 'OFF' }}
-            </button>
-          </div>
-          <div class="delay-params">
-            <div class="delay-param">
-              <span class="param-label">Time</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                [value]="delayTime()"
-                (input)="onDelayTimeChange($event)"
-                class="effect-slider"
-                [disabled]="!delayEnabled()"
-                title="Delay time" />
-              <span class="param-value">{{ delayTime().toFixed(0) }}</span>
-            </div>
-            <div class="delay-param">
-              <span class="param-label">Feedback</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                [value]="delayFeedback()"
-                (input)="onDelayFeedbackChange($event)"
-                class="effect-slider"
-                [disabled]="!delayEnabled()"
-                title="Feedback amount" />
-              <span class="param-value">{{ delayFeedback().toFixed(0) }}</span>
-            </div>
-            <div class="delay-param">
-              <span class="param-label">Mix</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                [value]="delayWetDry()"
-                (input)="onDelayWetDryChange($event)"
-                class="effect-slider"
-                [disabled]="!delayEnabled()"
-                title="Wet/dry mix" />
-              <span class="param-value">{{ delayWetDry().toFixed(0) }}</span>
-            </div>
-          </div>
-        </div>
         <button
-          class="delete-button"
+          class="control-btn effects-btn"
+          (click)="openEffectsModal()"
+          title="Effects">
+          +
+        </button>
+        <button
+          class="delete-btn"
           (click)="onDeleteClick()"
           title="Delete track">
           ×
         </button>
+      </div>
+      <div class="volume-control">
+        <span class="volume-label">Vol</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          [value]="track().volume * 100"
+          (input)="onVolumeChange($event)"
+          title="Volume" />
+        <span class="volume-value">{{ (track().volume * 100).toFixed(0) }}</span>
       </div>
     </div>
   </div>
@@ -134,4 +66,23 @@
       }
     </div>
   </div>
+
+  <!-- Effects Modal -->
+  @if (showEffectsModal()) {
+    <app-track-effects-modal
+      [track]="track()"
+      [distortionAmount]="distortionAmount()"
+      [distortionEnabled]="distortionEnabled()"
+      [delayTime]="delayTime()"
+      [delayFeedback]="delayFeedback()"
+      [delayWetDry]="delayWetDry()"
+      [delayEnabled]="delayEnabled()"
+      (close)="closeEffectsModal()"
+      (distortionChange)="onDistortionChange($event)"
+      (distortionToggle)="onDistortionToggle()"
+      (delayTimeChange)="onDelayTimeChange($event)"
+      (delayFeedbackChange)="onDelayFeedbackChange($event)"
+      (delayWetDryChange)="onDelayWetDryChange($event)"
+      (delayToggle)="onDelayToggle()" />
+  }
 </div>

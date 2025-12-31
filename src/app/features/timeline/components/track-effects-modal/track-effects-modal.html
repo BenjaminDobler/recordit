@@ -1,0 +1,90 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Effects - {{ track().name }}</h3>
+      <button class="close-button" (click)="onClose()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Distortion Effect -->
+      <div class="effect-section">
+        <div class="effect-header">
+          <h4>Distortion</h4>
+          <button
+            class="effect-toggle"
+            [class.active]="distortionEnabled()"
+            (click)="onDistortionToggle()">
+            {{ distortionEnabled() ? 'ON' : 'OFF' }}
+          </button>
+        </div>
+        <div class="effect-controls">
+          <label class="control-label">
+            <span>Amount</span>
+            <span class="control-value">{{ distortionAmount().toFixed(0) }}</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="distortionAmount()"
+            (input)="onDistortionChange($event)"
+            [disabled]="!distortionEnabled()"
+            class="effect-slider" />
+        </div>
+      </div>
+
+      <!-- Delay Effect -->
+      <div class="effect-section">
+        <div class="effect-header">
+          <h4>Delay</h4>
+          <button
+            class="effect-toggle"
+            [class.active]="delayEnabled()"
+            (click)="onDelayToggle()">
+            {{ delayEnabled() ? 'ON' : 'OFF' }}
+          </button>
+        </div>
+        <div class="effect-controls">
+          <label class="control-label">
+            <span>Time</span>
+            <span class="control-value">{{ delayTime().toFixed(0) }}</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="delayTime()"
+            (input)="onDelayTimeChange($event)"
+            [disabled]="!delayEnabled()"
+            class="effect-slider" />
+
+          <label class="control-label">
+            <span>Feedback</span>
+            <span class="control-value">{{ delayFeedback().toFixed(0) }}</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="delayFeedback()"
+            (input)="onDelayFeedbackChange($event)"
+            [disabled]="!delayEnabled()"
+            class="effect-slider" />
+
+          <label class="control-label">
+            <span>Mix</span>
+            <span class="control-value">{{ delayWetDry().toFixed(0) }}</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            [value]="delayWetDry()"
+            (input)="onDelayWetDryChange($event)"
+            [disabled]="!delayEnabled()"
+            class="effect-slider" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -6,43 +6,45 @@
     </button>
   </div>
 
-  <!-- Time Ruler -->
-  <div class="time-ruler-wrapper">
-    <div class="ruler-spacer"></div>
-    <div class="time-ruler" [style.width.px]="timelineLength() * pixelsPerSecond()">
-      @for (marker of timeMarkers(); track marker) {
-        <div class="time-marker" [style.left.px]="marker * pixelsPerSecond()">
-          <span class="marker-label">{{ marker }}s</span>
-          <div class="marker-line"></div>
+  <div class="timeline-scroll-wrapper">
+    <!-- Time Ruler -->
+    <div class="time-ruler-wrapper">
+      <div class="ruler-spacer"></div>
+      <div class="time-ruler" [style.width.px]="timelineLength() * pixelsPerSecond()">
+        @for (marker of timeMarkers(); track marker) {
+          <div class="time-marker" [style.left.px]="marker * pixelsPerSecond()">
+            <span class="marker-label">{{ marker }}s</span>
+            <div class="marker-line"></div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Playhead -->
+    <app-playhead [currentTime]="currentTime()" [pixelsPerSecond]="pixelsPerSecond()" />
+
+    <!-- Tracks -->
+    <div class="tracks-container">
+      @for (track of tracks(); track track.id) {
+        <app-track-lane
+          [track]="track"
+          [pixelsPerSecond]="pixelsPerSecond()"
+          (armToggle)="onTrackArmToggle($event)"
+          (trackDelete)="onTrackDelete($event)"
+          (volumeChange)="onTrackVolumeChange($event)"
+          (muteToggle)="onTrackMuteToggle($event)"
+          (soloToggle)="onTrackSoloToggle($event)"
+          (clipPositionChange)="onClipPositionChange($event)"
+          (distortionChange)="onDistortionChange($event)"
+          (distortionToggle)="onDistortionToggle($event)"
+          (delayChange)="onDelayChange($event)"
+          (delayToggle)="onDelayToggle($event)" />
+      }
+      @empty {
+        <div class="no-tracks-message">
+          <p>No tracks available</p>
         </div>
       }
     </div>
-  </div>
-
-  <!-- Playhead -->
-  <app-playhead [currentTime]="currentTime()" [pixelsPerSecond]="pixelsPerSecond()" />
-
-  <!-- Tracks -->
-  <div class="tracks-container">
-    @for (track of tracks(); track track.id) {
-      <app-track-lane
-        [track]="track"
-        [pixelsPerSecond]="pixelsPerSecond()"
-        (armToggle)="onTrackArmToggle($event)"
-        (trackDelete)="onTrackDelete($event)"
-        (volumeChange)="onTrackVolumeChange($event)"
-        (muteToggle)="onTrackMuteToggle($event)"
-        (soloToggle)="onTrackSoloToggle($event)"
-        (clipPositionChange)="onClipPositionChange($event)"
-        (distortionChange)="onDistortionChange($event)"
-        (distortionToggle)="onDistortionToggle($event)"
-        (delayChange)="onDelayChange($event)"
-        (delayToggle)="onDelayToggle($event)" />
-    }
-    @empty {
-      <div class="no-tracks-message">
-        <p>No tracks available</p>
-      </div>
-    }
   </div>
 </div>

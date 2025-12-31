@@ -1,12 +1,13 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AudioTrack } from '../../../../core/models/audio-track.model';
 import { EffectType } from '../../../../core/models/effect.model';
 import { ClipItem } from '../clip-item/clip-item';
+import { TrackEffectsModal } from '../track-effects-modal/track-effects-modal';
 
 @Component({
   selector: 'app-track-lane',
-  imports: [CommonModule, ClipItem],
+  imports: [CommonModule, ClipItem, TrackEffectsModal],
   templateUrl: './track-lane.html',
   styleUrl: './track-lane.scss',
   standalone: true
@@ -14,6 +15,8 @@ import { ClipItem } from '../clip-item/clip-item';
 export class TrackLane {
   track = input.required<AudioTrack>();
   pixelsPerSecond = input<number>(100);
+
+  showEffectsModal = signal(false);
 
   // Computed effect states
   distortionEffect = computed(() => this.track().effects.find(e => e.type === EffectType.Distortion));
@@ -64,50 +67,54 @@ export class TrackLane {
     this.clipPositionChange.emit(event);
   }
 
-  onDistortionChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const amount = parseInt(target.value);
-    this.distortionChange.emit({ trackId: this.track().id, amount });
+  onDistortionChange(amount: number | Event): void {
+    const value = typeof amount === 'number' ? amount : parseInt((amount.target as HTMLInputElement).value);
+    this.distortionChange.emit({ trackId: this.track().id, amount: value });
   }
 
   onDistortionToggle(): void {
     this.distortionToggle.emit(this.track().id);
   }
 
-  onDelayTimeChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const time = parseInt(target.value);
+  onDelayTimeChange(time: number | Event): void {
+    const value = typeof time === 'number' ? time : parseInt((time.target as HTMLInputElement).value);
     this.delayChange.emit({
       trackId: this.track().id,
-      time,
+      time: value,
       feedback: this.delayFeedback(),
       wetDry: this.delayWetDry()
     });
   }
 
-  onDelayFeedbackChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const feedback = parseInt(target.value);
+  onDelayFeedbackChange(feedback: number | Event): void {
+    const value = typeof feedback === 'number' ? feedback : parseInt((feedback.target as HTMLInputElement).value);
     this.delayChange.emit({
       trackId: this.track().id,
       time: this.delayTime(),
-      feedback,
+      feedback: value,
       wetDry: this.delayWetDry()
     });
   }
 
-  onDelayWetDryChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const wetDry = parseInt(target.value);
+  onDelayWetDryChange(wetDry: number | Event): void {
+    const value = typeof wetDry === 'number' ? wetDry : parseInt((wetDry.target as HTMLInputElement).value);
     this.delayChange.emit({
       trackId: this.track().id,
       time: this.delayTime(),
       feedback: this.delayFeedback(),
-      wetDry
+      wetDry: value
     });
   }
 
   onDelayToggle(): void {
     this.delayToggle.emit(this.track().id);
+  }
+
+  openEffectsModal(): void {
+    this.showEffectsModal.set(true);
+  }
+
+  closeEffectsModal(): void {
+    this.showEffectsModal.set(false);
   }
 }

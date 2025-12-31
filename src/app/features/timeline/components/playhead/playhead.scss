@@ -1,9 +1,9 @@
 // Logic Pro Playhead
 .playhead {
   position: absolute;
-  top: 78px; // Account for header + time ruler
+  top: 24px; // Account for time ruler height
   bottom: 0;
-  z-index: 100;
+  z-index: 25;
   pointer-events: none;
 
   .playhead-line {

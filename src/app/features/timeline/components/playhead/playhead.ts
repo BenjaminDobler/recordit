@@ -15,5 +15,5 @@ export class Playhead {
    * Calculate the left position of the playhead in pixels
    * Offset by 220px to account for container padding (20px) + track header width (200px)
    */
-  playheadLeft = computed(() => 220 + (this.currentTime() * this.pixelsPerSecond()));
+  playheadLeft = computed(() => 250 + (this.currentTime() * this.pixelsPerSecond()));
 }
