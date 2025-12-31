@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { PlaybackService, PlaybackState } from '../../../../core/services/playback.service';
-import { AudioStateService } from '../../../../core/services/audio-state.service';
+import { ClipManagerService } from '../../../timeline/services/clip-manager.service';
 import { RecordControls } from '../../../recorder/components/record-controls/record-controls';
 
 @Component({
@@ -13,10 +14,17 @@ import { RecordControls } from '../../../recorder/components/record-controls/rec
 })
 export class TransportControls {
   private playbackService = inject(PlaybackService);
-  private audioStateService = inject(AudioStateService);
+  private clipManagerService = inject(ClipManagerService);
 
   playbackState$ = this.playbackService.playbackState$;
-  currentAudioBuffer$ = this.audioStateService.currentAudioBuffer$;
+  playbackState = toSignal(this.playbackService.playbackState$, { initialValue: PlaybackState.Idle });
+  tracks = toSignal(this.clipManagerService.tracks$, { initialValue: [] });
+
+  // Check if there are any clips to play
+  hasClipsToPlay = computed(() => {
+    return this.tracks().some(track => track.clips.length > 0);
+  });
+
   PlaybackState = PlaybackState;
 
   async onPlay(): Promise<void> {
