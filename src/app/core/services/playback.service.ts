@@ -78,9 +78,34 @@ export class PlaybackService {
       gainNode.gain.value = shouldPlay ? track.volume : 0;
 
       // Create effects chain
+      // Effects are applied in reverse order (last effect connects to output)
+      // Signal flow: source → boost → distortion → flanger → delay → reverb → tremolo → gain → destination
       let effectsChain: AudioNode = gainNode;
 
-      // Apply delay effect if enabled (before distortion for cleaner delays)
+      // Apply tremolo effect if enabled (last in chain - amplitude modulation)
+      const tremoloEffect = track.effects.find(e => e.type === EffectType.Tremolo);
+      if (tremoloEffect && tremoloEffect.enabled) {
+        const rate = tremoloEffect.parameters['rate'] || 50;
+        const depth = tremoloEffect.parameters['depth'] || 50;
+        const tremoloNode = this.effectsProcessorService.createTremolo(rate, depth);
+
+        tremoloNode.connect(effectsChain);
+        effectsChain = tremoloNode;
+      }
+
+      // Apply reverb effect if enabled
+      const reverbEffect = track.effects.find(e => e.type === EffectType.Reverb);
+      if (reverbEffect && reverbEffect.enabled) {
+        const roomSize = reverbEffect.parameters['roomSize'] || 50;
+        const damping = reverbEffect.parameters['damping'] || 50;
+        const wetDry = reverbEffect.parameters['wetDry'] || 30;
+        const reverbNodes = this.effectsProcessorService.createReverb(roomSize, damping, wetDry);
+
+        reverbNodes.output.connect(effectsChain);
+        effectsChain = reverbNodes.input;
+      }
+
+      // Apply delay effect if enabled
       const delayEffect = track.effects.find(e => e.type === EffectType.Delay);
       if (delayEffect && delayEffect.enabled) {
         const time = (delayEffect.parameters['time'] || 30) / 100; // Convert 0-100 to 0-1 seconds
@@ -88,9 +113,20 @@ export class PlaybackService {
         const wetDry = delayEffect.parameters['wetDry'] || 50;
         const delayNodes = this.effectsProcessorService.createDelay(time, feedback, wetDry);
 
-        // Insert delay before current chain: delay → chain
         delayNodes.output.connect(effectsChain);
         effectsChain = delayNodes.input;
+      }
+
+      // Apply flanger effect if enabled
+      const flangerEffect = track.effects.find(e => e.type === EffectType.Flanger);
+      if (flangerEffect && flangerEffect.enabled) {
+        const rate = flangerEffect.parameters['rate'] || 50;
+        const depth = flangerEffect.parameters['depth'] || 50;
+        const feedback = flangerEffect.parameters['feedback'] || 50;
+        const flangerNodes = this.effectsProcessorService.createFlanger(rate, depth, feedback);
+
+        flangerNodes.output.connect(effectsChain);
+        effectsChain = flangerNodes.input;
       }
 
       // Apply distortion effect if enabled
@@ -99,9 +135,18 @@ export class PlaybackService {
         const distortionAmount = distortionEffect.parameters['amount'] || 50;
         const distortionNode = this.effectsProcessorService.createDistortion(distortionAmount);
 
-        // Insert distortion before current chain: distortion → chain
         distortionNode.connect(effectsChain);
         effectsChain = distortionNode;
+      }
+
+      // Apply boost effect if enabled (first in chain - pre-amp)
+      const boostEffect = track.effects.find(e => e.type === EffectType.Boost);
+      if (boostEffect && boostEffect.enabled) {
+        const gain = boostEffect.parameters['gain'] || 50;
+        const boostNode = this.effectsProcessorService.createBoost(gain);
+
+        boostNode.connect(effectsChain);
+        effectsChain = boostNode;
       }
 
       // Connect final node to destination
