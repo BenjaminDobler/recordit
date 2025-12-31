@@ -6,6 +6,9 @@
     <button class="btn-secondary" (click)="openLoadDialog()">
       Load Project
     </button>
+    <button class="btn-export" (click)="openExportDialog()">
+      Export Mix
+    </button>
   </div>
 
   <!-- Save Dialog -->
@@ -118,6 +121,70 @@
             [disabled]="isLoading()"
           >
             Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Export Dialog -->
+  @if (showExportDialog()) {
+    <div class="modal-overlay" (click)="closeExportDialog()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Export Mix</h3>
+          <button class="close-button" (click)="closeExportDialog()">×</button>
+        </div>
+
+        <div class="modal-body">
+          @if (errorMessage()) {
+            <div class="error-message">{{ errorMessage() }}</div>
+          }
+          @if (successMessage()) {
+            <div class="success-message">{{ successMessage() }}</div>
+          }
+
+          <div class="export-info">
+            <p>Export your project as a WebM audio file.</p>
+            <p class="duration-info">Project duration: <strong>{{ projectDuration() }}s</strong></p>
+          </div>
+
+          <div class="form-group">
+            <label for="exportFilename">Filename:</label>
+            <input
+              type="text"
+              id="exportFilename"
+              [(ngModel)]="exportFilename"
+              [disabled]="isExporting()"
+              placeholder="Enter filename (e.g., my-mix.webm)"
+              (keyup.enter)="exportMix()"
+            />
+          </div>
+
+          @if (isExporting()) {
+            <div class="progress-container">
+              <div class="progress-label">Exporting... {{ exportProgress() }}%</div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="exportProgress()"></div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn-secondary"
+            (click)="closeExportDialog()"
+            [disabled]="isExporting()"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn-export"
+            (click)="exportMix()"
+            [disabled]="isExporting()"
+          >
+            {{ isExporting() ? 'Exporting...' : 'Export' }}
           </button>
         </div>
       </div>

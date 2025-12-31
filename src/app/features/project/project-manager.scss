@@ -10,7 +10,8 @@
 }
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-export {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -40,6 +41,15 @@
 
   &:hover:not(:disabled) {
     background-color: #2980b9;
+  }
+}
+
+.btn-export {
+  background-color: #9b59b6;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #8e44ad;
   }
 }
 
@@ -253,4 +263,60 @@
   &:hover:not(:disabled) {
     background-color: #c0392b;
   }
+}
+
+// Export specific styles
+.export-info {
+  padding: 15px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 4px;
+  margin-bottom: 20px;
+
+  p {
+    margin: 0 0 8px 0;
+    color: #ddd;
+    font-size: 14px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .duration-info {
+    color: #999;
+    font-size: 13px;
+
+    strong {
+      color: #9b59b6;
+    }
+  }
+}
+
+.progress-container {
+  margin-top: 20px;
+}
+
+.progress-label {
+  margin-bottom: 8px;
+  color: #ddd;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9b59b6, #8e44ad);
+  transition: width 0.3s ease;
+  border-radius: 4px;
 }

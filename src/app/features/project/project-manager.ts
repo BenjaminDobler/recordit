@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectStorageService } from '../../core/services/project-storage.service';
+import { ExportService } from '../../core/services/export.service';
 
 interface SavedProject {
   id: string;
@@ -19,15 +20,25 @@ interface SavedProject {
 })
 export class ProjectManager {
   private projectStorageService = inject(ProjectStorageService);
+  private exportService = inject(ExportService);
 
   savedProjects = signal<SavedProject[]>([]);
   showSaveDialog = signal(false);
   showLoadDialog = signal(false);
+  showExportDialog = signal(false);
   projectName = signal('');
+  exportFilename = signal('');
   isSaving = signal(false);
   isLoading = signal(false);
+  isExporting = signal(false);
+  exportProgress = signal(0);
   errorMessage = signal('');
   successMessage = signal('');
+
+  projectDuration = computed(() => {
+    const duration = this.exportService.getProjectDuration();
+    return duration.toFixed(2);
+  });
 
   async ngOnInit() {
     await this.loadProjectList();
@@ -168,5 +179,65 @@ export class ProjectManager {
    */
   formatDate(timestamp: number): string {
     return new Date(timestamp).toLocaleString();
+  }
+
+  /**
+   * Opens the export dialog
+   */
+  openExportDialog(): void {
+    this.showExportDialog.set(true);
+    this.exportFilename.set('my-mix.webm');
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.exportProgress.set(0);
+  }
+
+  /**
+   * Closes the export dialog
+   */
+  closeExportDialog(): void {
+    this.showExportDialog.set(false);
+    this.exportFilename.set('');
+    this.exportProgress.set(0);
+  }
+
+  /**
+   * Exports the final mix
+   */
+  async exportMix(): Promise<void> {
+    const filename = this.exportFilename().trim();
+
+    if (!filename) {
+      this.errorMessage.set('Please enter a filename');
+      return;
+    }
+
+    // Ensure .webm extension
+    const finalFilename = filename.endsWith('.webm') ? filename : `${filename}.webm`;
+
+    this.isExporting.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.exportProgress.set(0);
+
+    try {
+      await this.exportService.exportMix(finalFilename, (progress) => {
+        this.exportProgress.set(progress);
+      });
+
+      this.successMessage.set('Mix exported successfully!');
+
+      setTimeout(() => {
+        this.closeExportDialog();
+        this.successMessage.set('');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to export mix:', error);
+      this.errorMessage.set(
+        error instanceof Error ? error.message : 'Failed to export mix. Please try again.'
+      );
+    } finally {
+      this.isExporting.set(false);
+    }
   }
 }
