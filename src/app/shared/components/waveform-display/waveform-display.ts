@@ -1,4 +1,4 @@
-import { Component, input, effect, viewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, input, effect, viewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-waveform-display',
@@ -7,7 +7,7 @@ import { Component, input, effect, viewChild, ElementRef, AfterViewInit } from '
   styleUrl: './waveform-display.scss',
   standalone: true
 })
-export class WaveformDisplay implements AfterViewInit {
+export class WaveformDisplay implements AfterViewInit, OnDestroy {
   waveformData = input<number[]>([]);
   width = input<number>(200);
   height = input<number>(60);
@@ -16,6 +16,8 @@ export class WaveformDisplay implements AfterViewInit {
   duration = input<number>(0);   // Total duration in seconds
 
   canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('waveformCanvas');
+
+  private animationFrameId: number | null = null;
 
   constructor() {
     // Re-render waveform when data or dimensions change
@@ -29,9 +31,25 @@ export class WaveformDisplay implements AfterViewInit {
       const canvasEl = this.canvas();
 
       if (data.length > 0 && canvasEl) {
-        this.drawWaveform();
+        // Cancel any pending draw
+        if (this.animationFrameId !== null) {
+          cancelAnimationFrame(this.animationFrameId);
+        }
+
+        // Schedule draw for next browser paint cycle
+        this.animationFrameId = requestAnimationFrame(() => {
+          this.drawWaveform();
+          this.animationFrameId = null;
+        });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // Clean up pending animation frame
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -58,12 +76,14 @@ export class WaveformDisplay implements AfterViewInit {
     const trimEnd = this.trimEnd();
     const duration = this.duration();
 
-    // Set canvas dimensions
-    canvasElement.width = width;
-    canvasElement.height = height;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
+    // Set canvas dimensions only if they changed (setting dimensions clears the canvas)
+    if (canvasElement.width !== width || canvasElement.height !== height) {
+      canvasElement.width = width;
+      canvasElement.height = height;
+    } else {
+      // Clear canvas manually if dimensions didn't change
+      ctx.clearRect(0, 0, width, height);
+    }
 
     // Draw waveform (dark color for golden clips - Logic Pro style)
     ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
