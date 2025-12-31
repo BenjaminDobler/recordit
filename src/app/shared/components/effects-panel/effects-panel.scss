@@ -17,6 +17,7 @@
   background: #1a1a1a;
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+  width: 1400px;
   max-width: 90vw;
   max-height: 90vh;
   display: flex;
@@ -175,7 +176,8 @@
 .pedalboard-canvas {
   position: relative;
   background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-  min-height: 600px;
+  min-height: 700px;
+  min-width: 900px;
   flex: 1;
   padding: 20px;
   overflow: auto;
