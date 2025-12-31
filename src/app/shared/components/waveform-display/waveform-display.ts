@@ -81,6 +81,11 @@ export class WaveformDisplay implements AfterViewInit {
       visibleData = data.slice(startIndex, endIndex);
     }
 
+    // Safety check - ensure we have data to draw
+    if (visibleData.length === 0) {
+      visibleData = data; // Fallback to full data
+    }
+
     const barWidth = width / visibleData.length;
 
     visibleData.forEach((peak, i) => {

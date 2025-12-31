@@ -44,17 +44,25 @@ export class ClipItem {
   clipDelete = output<string>();
 
   /**
+   * Effective trim start (live during trimming, committed after)
+   */
+  effectiveTrimStart = computed(() => {
+    return this.isTrimming() ? this.currentTrimStart() : this.clip().trimStart;
+  });
+
+  /**
+   * Effective trim end (live during trimming, committed after)
+   */
+  effectiveTrimEnd = computed(() => {
+    return this.isTrimming() ? this.currentTrimEnd() : this.clip().trimEnd;
+  });
+
+  /**
    * Calculate the width of the clip in pixels (accounting for trim)
    */
   clipWidth = computed(() => {
     const clip = this.clip();
-    let visibleDuration = clip.duration - clip.trimStart - clip.trimEnd;
-
-    // If trimming, use live preview values
-    if (this.isTrimming()) {
-      visibleDuration = clip.duration - this.currentTrimStart() - this.currentTrimEnd();
-    }
-
+    const visibleDuration = clip.duration - this.effectiveTrimStart() - this.effectiveTrimEnd();
     return visibleDuration * this.pixelsPerSecond();
   });
 
