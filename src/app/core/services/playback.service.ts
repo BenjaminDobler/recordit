@@ -269,4 +269,20 @@ export class PlaybackService {
   getAudioBuffer(): AudioBuffer | null {
     return this.currentBuffer;
   }
+
+  /**
+   * Seeks to a specific time position (in seconds)
+   * Stops playback and updates the current time
+   */
+  seek(time: number): void {
+    // Stop any current playback
+    const wasPlaying = this.playbackStateSubject.value === PlaybackState.Playing;
+    this.stop();
+
+    // Set the current time
+    this.currentTimeSubject.next(Math.max(0, time));
+
+    // Note: If we wanted to continue playback from the new position,
+    // we could restart playback here. For now, seeking stops playback.
+  }
 }

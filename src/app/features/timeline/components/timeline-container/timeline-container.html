@@ -21,7 +21,10 @@
     </div>
 
     <!-- Playhead -->
-    <app-playhead [currentTime]="currentTime()" [pixelsPerSecond]="pixelsPerSecond()" />
+    <app-playhead
+      [currentTime]="currentTime()"
+      [pixelsPerSecond]="pixelsPerSecond()"
+      (timeChange)="onPlayheadTimeChange($event)" />
 
     <!-- Tracks -->
     <div class="tracks-container">

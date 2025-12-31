@@ -150,4 +150,11 @@ export class TimelineContainer {
   onDelayToggle(trackId: string): void {
     this.clipManagerService.toggleTrackEffect(trackId, EffectType.Delay);
   }
+
+  /**
+   * Handles playhead time change from drag
+   */
+  onPlayheadTimeChange(newTime: number): void {
+    this.playbackService.seek(newTime);
+  }
 }
