@@ -1,0 +1,67 @@
+.vu-meter {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  gap: 2px;
+}
+
+.meter-bar {
+  position: relative;
+  width: 8px;
+  background: linear-gradient(
+    to top,
+    rgba(46, 204, 113, 0.2) 0%,
+    rgba(46, 204, 113, 0.2) 50%,
+    rgba(241, 196, 15, 0.2) 75%,
+    rgba(231, 76, 60, 0.2) 90%,
+    rgba(231, 76, 60, 0.2) 100%
+  );
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.meter-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: height 0.05s ease-out;
+  border-radius: 1px;
+}
+
+.peak-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  box-shadow: 0 0 4px currentColor;
+  transition: bottom 0.1s ease-out;
+}
+
+.meter-scale {
+  position: relative;
+  width: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.scale-mark {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 1px;
+
+  &.green {
+    background: rgba(46, 204, 113, 0.5);
+  }
+
+  &.yellow {
+    background: rgba(241, 196, 15, 0.6);
+  }
+
+  &.red {
+    background: rgba(231, 76, 60, 0.7);
+  }
+}

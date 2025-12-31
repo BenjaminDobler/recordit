@@ -45,6 +45,12 @@
       font-weight: bold;
     }
 
+    app-vu-meter {
+      display: flex;
+      flex-shrink: 0;
+      margin-left: 4px;
+    }
+
     .track-info {
       flex: 1;
       min-width: 0;

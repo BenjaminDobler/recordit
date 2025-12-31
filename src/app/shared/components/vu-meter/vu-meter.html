@@ -1,0 +1,22 @@
+<div class="vu-meter">
+  <div class="meter-bar">
+    <div
+      class="meter-fill"
+      [style.height.%]="level()"
+      [style.background-color]="getLevelColor(level())">
+    </div>
+    @if (peakLevel() > 0) {
+      <div
+        class="peak-indicator"
+        [style.bottom.%]="peakLevel()"
+        [style.background-color]="getLevelColor(peakLevel())">
+      </div>
+    }
+  </div>
+  <div class="meter-scale">
+    <div class="scale-mark red" style="bottom: 90%"></div>
+    <div class="scale-mark yellow" style="bottom: 75%"></div>
+    <div class="scale-mark green" style="bottom: 50%"></div>
+    <div class="scale-mark green" style="bottom: 25%"></div>
+  </div>
+</div>

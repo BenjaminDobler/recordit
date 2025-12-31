@@ -1,6 +1,7 @@
 <div class="track-lane" [class.armed]="track().armed">
   <div class="track-header">
     <div class="track-icon">{{ track().name.charAt(0) }}</div>
+    <app-vu-meter [analyser]="trackAnalyser()" />
     <div class="track-info">
       <h3 class="track-name">{{ track().name }}</h3>
       <div class="track-controls">

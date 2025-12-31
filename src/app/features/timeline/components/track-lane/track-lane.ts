@@ -1,21 +1,36 @@
-import { Component, input, output, computed, signal } from '@angular/core';
+import { Component, input, output, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AudioTrack } from '../../../../core/models/audio-track.model';
 import { EffectType } from '../../../../core/models/effect.model';
 import { ClipItem } from '../clip-item/clip-item';
 import { EffectsPanel } from '../../../../shared/components/effects-panel/effects-panel';
+import { VuMeter } from '../../../../shared/components/vu-meter/vu-meter';
+import { PlaybackService, PlaybackState } from '../../../../core/services/playback.service';
 
 @Component({
   selector: 'app-track-lane',
-  imports: [CommonModule, ClipItem, EffectsPanel],
+  imports: [CommonModule, ClipItem, EffectsPanel, VuMeter],
   templateUrl: './track-lane.html',
   styleUrl: './track-lane.scss',
   standalone: true
 })
 export class TrackLane {
+  private playbackService = inject(PlaybackService);
+
   track = input.required<AudioTrack>();
   pixelsPerSecond = input<number>(100);
   currentPlayheadTime = input<number>(0);
+
+  // VU Meter
+  playbackState = toSignal(this.playbackService.playbackState$, { initialValue: PlaybackState.Idle });
+  trackAnalyser = computed(() => {
+    // Only get analyser when playing, otherwise return null
+    if (this.playbackState() === PlaybackState.Playing) {
+      return this.playbackService.getTrackAnalyser(this.track().id);
+    }
+    return null;
+  });
 
   showEffectsPanel = signal(false);
 

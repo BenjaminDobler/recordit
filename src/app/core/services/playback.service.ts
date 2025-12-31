@@ -16,6 +16,7 @@ export enum PlaybackState {
 interface TrackPlaybackNode {
   trackId: string;
   gainNode: GainNode;
+  analyser: AnalyserNode;
   sources: AudioBufferSourceNode[];
 }
 
@@ -161,9 +162,15 @@ export class PlaybackService {
       const panNode = audioContext.createStereoPanner();
       panNode.pan.value = track.pan;
 
-      // Connect final chain: gain → pan → master gain → destination
+      // Create analyser node for VU meter
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.8;
+
+      // Connect final chain: gain → pan → analyser → master gain → destination
       gainNode.connect(panNode);
-      panNode.connect(this.masterGainNode!);
+      panNode.connect(analyser);
+      analyser.connect(this.masterGainNode!);
 
       // Create source nodes for each clip in the track
       const sources: AudioBufferSourceNode[] = track.clips
@@ -214,6 +221,7 @@ export class PlaybackService {
       return {
         trackId: track.id,
         gainNode,
+        analyser,
         sources
       };
     });
@@ -395,5 +403,13 @@ export class PlaybackService {
     if (this.masterGainNode) {
       this.masterGainNode.gain.value = clampedVolume;
     }
+  }
+
+  /**
+   * Gets the analyser node for a specific track (for VU meter)
+   */
+  getTrackAnalyser(trackId: string): AnalyserNode | null {
+    const trackNode = this.trackPlaybackNodes.find(node => node.trackId === trackId);
+    return trackNode?.analyser || null;
   }
 }
