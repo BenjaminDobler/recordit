@@ -55,14 +55,14 @@ export class PlaybackService {
     // Resume audio context if suspended (required for browser autoplay policies)
     await this.audioContextService.resume();
 
+    // Get current playhead position BEFORE stopping (stop() resets it to 0)
+    const playheadTime = this.currentTimeSubject.value;
+
     // Stop any currently playing audio
     this.stop();
 
     const audioContext = this.audioContextService.getContext();
     const tracks = this.clipManagerService.getTracks();
-
-    // Get current playhead position
-    const playheadTime = this.currentTimeSubject.value;
 
     // Check if any tracks have solo enabled
     const hasSoloTracks = tracks.some(track => track.solo);
