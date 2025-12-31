@@ -16,20 +16,28 @@ export class EffectsProcessorService {
     const audioContext = this.audioContextService.getContext();
     const distortion = audioContext.createWaveShaper();
 
-    // Normalize amount to 0-1 range
+    // Normalize amount to 0-1 range, then scale to useful range (1-50)
     const normalizedAmount = Math.max(0, Math.min(100, amount)) / 100;
+    // At 0%: drive = 1 (minimal distortion)
+    // At 50%: drive = 25 (moderate distortion)
+    // At 100%: drive = 50 (heavy distortion)
+    const drive = 1 + normalizedAmount * 49;
 
     // Create distortion curve
     const samples = 44100;
     const curve = new Float32Array(samples);
-    const deg = Math.PI / 180;
 
     // Generate waveshaping curve based on amount
-    // Higher amount = more aggressive distortion
+    // Using a combination of soft clipping (tanh) and hard clipping
     for (let i = 0; i < samples; i++) {
       const x = (i * 2) / samples - 1;
-      // Use tanh for smooth distortion, scaled by amount
-      curve[i] = ((3 + normalizedAmount * 20) * x * 20 * deg) / (Math.PI + normalizedAmount * Math.abs(x));
+
+      // Apply drive (pre-gain)
+      const driven = x * drive;
+
+      // Soft clip using tanh for smooth distortion
+      // tanh naturally clamps between -1 and 1
+      curve[i] = Math.tanh(driven);
     }
 
     distortion.curve = curve;
