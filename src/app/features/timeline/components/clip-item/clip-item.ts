@@ -44,11 +44,31 @@ export class ClipItem {
   clipDelete = output<string>();
 
   /**
+   * Get effective trim start for calculations (latest emitted or live)
+   */
+  private latestTrimStart = signal(0);
+  private latestTrimEnd = signal(0);
+
+  /**
+   * Get effective trim start (live during trimming, committed value otherwise)
+   */
+  effectiveTrimStart = computed(() => {
+    return this.isTrimming() ? this.latestTrimStart() : this.clip().trimStart;
+  });
+
+  /**
+   * Get effective trim end (live during trimming, committed value otherwise)
+   */
+  effectiveTrimEnd = computed(() => {
+    return this.isTrimming() ? this.latestTrimEnd() : this.clip().trimEnd;
+  });
+
+  /**
    * Calculate the width of the clip in pixels (accounting for trim)
    */
   clipWidth = computed(() => {
     const clip = this.clip();
-    const visibleDuration = clip.duration - clip.trimStart - clip.trimEnd;
+    const visibleDuration = clip.duration - this.effectiveTrimStart() - this.effectiveTrimEnd();
     return visibleDuration * this.pixelsPerSecond();
   });
 
@@ -65,7 +85,7 @@ export class ClipItem {
 
     // If trimming left edge, adjust position
     if (this.isTrimming() && this.trimMode() === 'left') {
-      const trimDelta = this.currentTrimStart() - clip.trimStart;
+      const trimDelta = this.effectiveTrimStart() - clip.trimStart;
       leftPos += trimDelta * this.pixelsPerSecond();
     }
 
@@ -145,6 +165,8 @@ export class ClipItem {
     this.dragStartX = event.clientX;
     this.currentTrimStart.set(this.clip().trimStart);
     this.currentTrimEnd.set(this.clip().trimEnd);
+    this.latestTrimStart.set(this.clip().trimStart);
+    this.latestTrimEnd.set(this.clip().trimEnd);
 
     document.addEventListener('mousemove', this.onTrimMove);
     document.addEventListener('mouseup', this.onTrimUp);
@@ -173,6 +195,10 @@ export class ClipItem {
       const maxTrim = this.clip().duration - this.currentTrimStart() - 0.1; // min 0.1s visible
       newTrimEnd = Math.min(newTrimEnd, maxTrim);
     }
+
+    // Update latest values for reactive calculations
+    this.latestTrimStart.set(newTrimStart);
+    this.latestTrimEnd.set(newTrimEnd);
 
     // Emit changes continuously for live updates
     this.trimChange.emit({
