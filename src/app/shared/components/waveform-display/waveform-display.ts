@@ -11,6 +11,9 @@ export class WaveformDisplay implements AfterViewInit {
   waveformData = input<number[]>([]);
   width = input<number>(200);
   height = input<number>(60);
+  trimStart = input<number>(0);  // Start time in seconds to trim from
+  trimEnd = input<number>(0);    // End time in seconds to trim from
+  duration = input<number>(0);   // Total duration in seconds
 
   canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('waveformCanvas');
 
@@ -20,6 +23,9 @@ export class WaveformDisplay implements AfterViewInit {
       const data = this.waveformData();
       const w = this.width();
       const h = this.height();
+      const trimS = this.trimStart();
+      const trimE = this.trimEnd();
+      const dur = this.duration();
       const canvasEl = this.canvas();
 
       if (data.length > 0 && canvasEl) {
@@ -48,6 +54,9 @@ export class WaveformDisplay implements AfterViewInit {
     const data = this.waveformData();
     const width = this.width();
     const height = this.height();
+    const trimStart = this.trimStart();
+    const trimEnd = this.trimEnd();
+    const duration = this.duration();
 
     // Set canvas dimensions
     canvasElement.width = width;
@@ -61,10 +70,20 @@ export class WaveformDisplay implements AfterViewInit {
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.lineWidth = 1;
 
-    const barWidth = width / data.length;
     const centerY = height / 2;
 
-    data.forEach((peak, i) => {
+    // Calculate visible portion of waveform based on trim
+    let visibleData = data;
+    if (duration > 0 && (trimStart > 0 || trimEnd > 0)) {
+      // Calculate start and end indices based on trim times
+      const startIndex = Math.floor((trimStart / duration) * data.length);
+      const endIndex = Math.ceil(((duration - trimEnd) / duration) * data.length);
+      visibleData = data.slice(startIndex, endIndex);
+    }
+
+    const barWidth = width / visibleData.length;
+
+    visibleData.forEach((peak, i) => {
       const x = i * barWidth;
       const barHeight = peak * centerY;
 
