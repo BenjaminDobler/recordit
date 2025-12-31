@@ -18,6 +18,7 @@ export class TransportControls {
 
   playbackState$ = this.playbackService.playbackState$;
   playbackState = toSignal(this.playbackService.playbackState$, { initialValue: PlaybackState.Idle });
+  masterVolume = toSignal(this.playbackService.masterVolume$, { initialValue: 0.8 });
   tracks = toSignal(this.clipManagerService.tracks$, { initialValue: [] });
 
   // Check if there are any clips to play
@@ -40,5 +41,11 @@ export class TransportControls {
   onStop(): void {
     this.playbackService.stop();
     console.log('Playback stopped');
+  }
+
+  onMasterVolumeChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const volume = parseInt(target.value) / 100;
+    this.playbackService.setMasterVolume(volume);
   }
 }

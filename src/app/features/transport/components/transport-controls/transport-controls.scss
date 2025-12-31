@@ -52,3 +52,67 @@
 .stop-btn {
   // Default styling
 }
+
+.master-volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid #444;
+
+  .volume-icon {
+    color: #888;
+    flex-shrink: 0;
+  }
+
+  .master-volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, #888 0%, #4a90e2 100%);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      transition: transform 0.1s;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    &::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      transition: transform 0.1s;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .master-volume-value {
+    font-size: 11px;
+    color: #888;
+    min-width: 28px;
+    text-align: right;
+    font-weight: 600;
+  }
+}

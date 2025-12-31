@@ -29,15 +29,18 @@ export class PlaybackService {
 
   private playbackStateSubject = new BehaviorSubject<PlaybackState>(PlaybackState.Idle);
   private currentTimeSubject = new BehaviorSubject<number>(0);
+  private masterVolumeSubject = new BehaviorSubject<number>(0.8); // Default 80%
   private currentSource: AudioBufferSourceNode | null = null;
   private currentBuffer: AudioBuffer | null = null;
   private startTime: number = 0;
   private pauseTime: number = 0;
   private animationFrameId: number | null = null;
   private trackPlaybackNodes: TrackPlaybackNode[] = [];
+  private masterGainNode: GainNode | null = null;
 
   playbackState$: Observable<PlaybackState> = this.playbackStateSubject.asObservable();
   currentTime$: Observable<number> = this.currentTimeSubject.asObservable();
+  masterVolume$: Observable<number> = this.masterVolumeSubject.asObservable();
 
   /**
    * Converts a Blob to an AudioBuffer
@@ -64,6 +67,11 @@ export class PlaybackService {
     const audioContext = this.audioContextService.getContext();
     const tracks = this.clipManagerService.getTracks();
 
+    // Create master gain node for overall volume control
+    this.masterGainNode = audioContext.createGain();
+    this.masterGainNode.gain.value = this.masterVolumeSubject.value;
+    this.masterGainNode.connect(audioContext.destination);
+
     // Check if any tracks have solo enabled
     const hasSoloTracks = tracks.some(track => track.solo);
 
@@ -79,7 +87,7 @@ export class PlaybackService {
 
       // Create effects chain
       // Effects are applied in reverse order (last effect connects to output)
-      // Signal flow: source → boost → distortion → flanger → delay → reverb → tremolo → gain → pan → destination
+      // Signal flow: source → boost → distortion → flanger → delay → reverb → tremolo → gain → pan → master gain → destination
       let effectsChain: AudioNode = gainNode;
 
       // Apply tremolo effect if enabled (last in chain - amplitude modulation)
@@ -153,9 +161,9 @@ export class PlaybackService {
       const panNode = audioContext.createStereoPanner();
       panNode.pan.value = track.pan;
 
-      // Connect final chain: gain → pan → destination
+      // Connect final chain: gain → pan → master gain → destination
       gainNode.connect(panNode);
-      panNode.connect(audioContext.destination);
+      panNode.connect(this.masterGainNode!);
 
       // Create source nodes for each clip in the track
       const sources: AudioBufferSourceNode[] = track.clips
@@ -367,5 +375,25 @@ export class PlaybackService {
    */
   getCurrentTime(): number {
     return this.currentTimeSubject.value;
+  }
+
+  /**
+   * Gets the current master volume (0-1)
+   */
+  getMasterVolume(): number {
+    return this.masterVolumeSubject.value;
+  }
+
+  /**
+   * Sets the master volume (0-1)
+   */
+  setMasterVolume(volume: number): void {
+    const clampedVolume = Math.max(0, Math.min(1, volume));
+    this.masterVolumeSubject.next(clampedVolume);
+
+    // Update the master gain node if it exists and is currently playing
+    if (this.masterGainNode) {
+      this.masterGainNode.gain.value = clampedVolume;
+    }
   }
 }
