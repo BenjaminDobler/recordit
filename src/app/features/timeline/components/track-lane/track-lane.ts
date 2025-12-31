@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { AudioTrack } from '../../../../core/models/audio-track.model';
 import { EffectType } from '../../../../core/models/effect.model';
 import { ClipItem } from '../clip-item/clip-item';
-import { TrackEffectsModal } from '../track-effects-modal/track-effects-modal';
+import { EffectsPanel } from '../../../../shared/components/effects-panel/effects-panel';
 
 @Component({
   selector: 'app-track-lane',
-  imports: [CommonModule, ClipItem, TrackEffectsModal],
+  imports: [CommonModule, ClipItem, EffectsPanel],
   templateUrl: './track-lane.html',
   styleUrl: './track-lane.scss',
   standalone: true
@@ -17,7 +17,7 @@ export class TrackLane {
   pixelsPerSecond = input<number>(100);
   currentPlayheadTime = input<number>(0);
 
-  showEffectsModal = signal(false);
+  showEffectsPanel = signal(false);
 
   // Computed effect states
   distortionEffect = computed(() => this.track().effects.find(e => e.type === EffectType.Distortion));
@@ -45,6 +45,8 @@ export class TrackLane {
   distortionToggle = output<string>();
   delayChange = output<{ trackId: string; time: number; feedback: number; wetDry: number }>();
   delayToggle = output<string>();
+  effectToggle = output<{ trackId: string; effectType: EffectType }>();
+  effectChange = output<{ trackId: string; effectType: EffectType; parameters: Record<string, number> }>();
 
   onArmClick(): void {
     this.armToggle.emit(this.track().id);
@@ -115,12 +117,20 @@ export class TrackLane {
     this.delayToggle.emit(this.track().id);
   }
 
-  openEffectsModal(): void {
-    this.showEffectsModal.set(true);
+  openEffectsPanel(): void {
+    this.showEffectsPanel.set(true);
   }
 
-  closeEffectsModal(): void {
-    this.showEffectsModal.set(false);
+  closeEffectsPanel(): void {
+    this.showEffectsPanel.set(false);
+  }
+
+  onEffectToggle(event: { trackId: string; effectType: EffectType }): void {
+    this.effectToggle.emit(event);
+  }
+
+  onEffectChange(event: { trackId: string; effectType: EffectType; parameters: Record<string, number> }): void {
+    this.effectChange.emit(event);
   }
 
   onClipTrimChange(event: { clipId: string; trimStart: number; trimEnd: number }): void {

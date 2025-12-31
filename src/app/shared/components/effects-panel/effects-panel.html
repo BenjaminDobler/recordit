@@ -1,0 +1,75 @@
+@if (visible()) {
+  <div class="effects-panel-backdrop" (click)="onBackdropClick()">
+    <div class="effects-panel" (click)="onPanelClick($event)">
+      <div class="panel-header">
+        <h3>Effects - {{ track().name }}</h3>
+        <button class="close-btn" (click)="onBackdropClick()">×</button>
+      </div>
+
+      <div class="pedalboard-canvas">
+        @for (box of stompBoxes(); track box.id) {
+          <div
+            [id]="box.id"
+            class="stomp-box"
+            [class.active]="box.enabled"
+            [class.dragging]="draggedBox() === box.id"
+            [style.left.px]="box.position.x"
+            [style.top.px]="box.position.y"
+            [style.border-color]="box.color"
+            (mousedown)="onBoxMouseDown($event, box)">
+
+            <!-- LED Indicator -->
+            <div class="led-container">
+              <div class="led" [class.on]="box.enabled" [style.background-color]="box.enabled ? '#22c55e' : '#374151'"></div>
+            </div>
+
+            <!-- CHECK label -->
+            <div class="check-label">CHECK</div>
+
+            <!-- Knobs -->
+            <div class="knobs-container">
+              @for (knob of effectMetadata[box.type].knobs; track knob.param) {
+                <div class="knob-container">
+                  <div class="knob-label">{{ knob.label }}</div>
+                  <div class="knob-wrapper">
+                    <div
+                      class="knob"
+                      [style.transform]="'rotate(' + getKnobRotation(box.parameters[knob.param] || 50) + 'deg)'">
+                      <div class="knob-indicator"></div>
+                    </div>
+                    <input
+                      type="range"
+                      class="knob-input"
+                      [min]="knob.min"
+                      [max]="knob.max"
+                      [value]="box.parameters[knob.param] || 50"
+                      (input)="onKnobChange(box, knob.param, +$any($event.target).value)" />
+                  </div>
+                  <div class="knob-value" [style.color]="box.color">{{ box.parameters[knob.param] || 50 }}</div>
+                </div>
+              }
+            </div>
+
+            <!-- Effect Name with Arrows -->
+            <div class="effect-name">
+              <span class="arrow">◀</span>
+              <span class="name" [style.color]="box.color">{{ effectMetadata[box.type].name }}</span>
+              <span class="arrow">▶</span>
+            </div>
+
+            <!-- Footswitch -->
+            <div class="footswitch" (click)="onFootswitchClick(box)">
+              <div class="footswitch-button">
+                <span>PUSH</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="panel-footer">
+        <p>Click and drag pedals to rearrange • Click footswitch to enable/disable • Adjust knobs to change parameters</p>
+      </div>
+    </div>
+  </div>
+}

@@ -27,9 +27,9 @@
         </button>
         <button
           class="control-btn effects-btn"
-          (click)="openEffectsModal()"
-          title="Effects">
-          +
+          (click)="openEffectsPanel()"
+          title="Effects Pedalboard">
+          FX
         </button>
         <button
           class="delete-btn"
@@ -72,22 +72,11 @@
     </div>
   </div>
 
-  <!-- Effects Modal -->
-  @if (showEffectsModal()) {
-    <app-track-effects-modal
-      [track]="track()"
-      [distortionAmount]="distortionAmount()"
-      [distortionEnabled]="distortionEnabled()"
-      [delayTime]="delayTime()"
-      [delayFeedback]="delayFeedback()"
-      [delayWetDry]="delayWetDry()"
-      [delayEnabled]="delayEnabled()"
-      (close)="closeEffectsModal()"
-      (distortionChange)="onDistortionChange($event)"
-      (distortionToggle)="onDistortionToggle()"
-      (delayTimeChange)="onDelayTimeChange($event)"
-      (delayFeedbackChange)="onDelayFeedbackChange($event)"
-      (delayWetDryChange)="onDelayWetDryChange($event)"
-      (delayToggle)="onDelayToggle()" />
-  }
+  <!-- Effects Pedalboard -->
+  <app-effects-panel
+    [track]="track()"
+    [visible]="showEffectsPanel()"
+    (close)="closeEffectsPanel()"
+    (effectToggle)="onEffectToggle($event)"
+    (effectChange)="onEffectChange($event)" />
 </div>

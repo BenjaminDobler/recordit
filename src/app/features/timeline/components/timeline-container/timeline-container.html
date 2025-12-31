@@ -46,7 +46,9 @@
           (distortionChange)="onDistortionChange($event)"
           (distortionToggle)="onDistortionToggle($event)"
           (delayChange)="onDelayChange($event)"
-          (delayToggle)="onDelayToggle($event)" />
+          (delayToggle)="onDelayToggle($event)"
+          (effectToggle)="onEffectToggle($event)"
+          (effectChange)="onEffectChange($event)" />
       }
       @empty {
         <div class="no-tracks-message">

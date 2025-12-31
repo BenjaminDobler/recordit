@@ -184,4 +184,18 @@ export class TimelineContainer {
     // Seek to the new position
     this.playbackService.seek(newTime);
   }
+
+  /**
+   * Handles generic effect toggle from effects panel
+   */
+  onEffectToggle(event: { trackId: string; effectType: EffectType }): void {
+    this.clipManagerService.toggleTrackEffect(event.trackId, event.effectType);
+  }
+
+  /**
+   * Handles generic effect parameter changes from effects panel
+   */
+  onEffectChange(event: { trackId: string; effectType: EffectType; parameters: Record<string, number> }): void {
+    this.clipManagerService.updateTrackEffect(event.trackId, event.effectType, event.parameters, true);
+  }
 }
