@@ -1,0 +1,20 @@
+@if (visible()) {
+  <div
+    class="clip-context-menu"
+    [style.left.px]="position().x"
+    [style.top.px]="position().y">
+    <div class="menu-item" (click)="onSplit()">
+      <span class="menu-icon">✂</span>
+      <span class="menu-label">Split at Playhead</span>
+    </div>
+    <div class="menu-item" (click)="onDuplicate()">
+      <span class="menu-icon">⎘</span>
+      <span class="menu-label">Duplicate</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item danger" (click)="onDelete()">
+      <span class="menu-icon">🗑</span>
+      <span class="menu-label">Delete</span>
+    </div>
+  </div>
+}

@@ -15,6 +15,7 @@ import { TrackEffectsModal } from '../track-effects-modal/track-effects-modal';
 export class TrackLane {
   track = input.required<AudioTrack>();
   pixelsPerSecond = input<number>(100);
+  currentPlayheadTime = input<number>(0);
 
   showEffectsModal = signal(false);
 
@@ -36,6 +37,10 @@ export class TrackLane {
   muteToggle = output<string>();
   soloToggle = output<string>();
   clipPositionChange = output<{ clipId: string; newStartTime: number }>();
+  trimChange = output<{ clipId: string; trimStart: number; trimEnd: number }>();
+  clipSplit = output<{ clipId: string; splitTime: number }>();
+  clipDuplicate = output<string>();
+  clipDelete = output<string>();
   distortionChange = output<{ trackId: string; amount: number }>();
   distortionToggle = output<string>();
   delayChange = output<{ trackId: string; time: number; feedback: number; wetDry: number }>();
@@ -116,5 +121,21 @@ export class TrackLane {
 
   closeEffectsModal(): void {
     this.showEffectsModal.set(false);
+  }
+
+  onClipTrimChange(event: { clipId: string; trimStart: number; trimEnd: number }): void {
+    this.trimChange.emit(event);
+  }
+
+  onClipSplit(event: { clipId: string; splitTime: number }): void {
+    this.clipSplit.emit(event);
+  }
+
+  onClipDuplicate(clipId: string): void {
+    this.clipDuplicate.emit(clipId);
+  }
+
+  onClipDelete(clipId: string): void {
+    this.clipDelete.emit(clipId);
   }
 }

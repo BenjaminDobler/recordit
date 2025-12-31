@@ -112,8 +112,17 @@ export class PlaybackService {
         // Connect to the effects chain (or directly to gain if no effects)
         source.connect(effectsChain);
 
+        // Calculate visible duration and offset for trimmed clips
+        const visibleDuration = clip.duration - clip.trimStart - clip.trimEnd;
+        const offset = clip.trimStart;
+
         // Schedule the clip to start at its position on the timeline
-        source.start(audioContext.currentTime + clip.startTime);
+        // source.start(when, offset, duration) - plays only the visible portion
+        source.start(
+          audioContext.currentTime + clip.startTime,
+          offset,
+          visibleDuration
+        );
 
         return source;
       });

@@ -86,6 +86,34 @@ export class TimelineContainer {
   }
 
   /**
+   * Updates a clip's trim values
+   */
+  onClipTrimChange(event: { clipId: string; trimStart: number; trimEnd: number }): void {
+    this.clipManagerService.updateClipTrim(event.clipId, event.trimStart, event.trimEnd);
+  }
+
+  /**
+   * Splits a clip at the specified time
+   */
+  onClipSplit(event: { clipId: string; splitTime: number }): void {
+    this.clipManagerService.splitClipAtTime(event.clipId, event.splitTime);
+  }
+
+  /**
+   * Duplicates a clip
+   */
+  onClipDuplicate(clipId: string): void {
+    this.clipManagerService.duplicateClip(clipId);
+  }
+
+  /**
+   * Deletes a clip
+   */
+  onClipDelete(clipId: string): void {
+    this.clipManagerService.removeClip(clipId);
+  }
+
+  /**
    * Updates distortion amount for a track
    */
   onDistortionChange(event: { trackId: string; amount: number }): void {

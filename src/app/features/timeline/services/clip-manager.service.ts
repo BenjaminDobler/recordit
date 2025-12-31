@@ -336,4 +336,130 @@ export class ClipManagerService {
     const track = this.getTrack(trackId);
     return track?.effects.find(e => e.type === effectType);
   }
+
+  /**
+   * Updates a clip's trim values (non-destructive trimming)
+   */
+  updateClipTrim(clipId: string, trimStart: number, trimEnd: number): void {
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track => ({
+      ...track,
+      clips: track.clips.map(clip =>
+        clip.id === clipId ? { ...clip, trimStart, trimEnd } : clip
+      )
+    }));
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Splits a clip at the specified time into two clips
+   */
+  splitClipAtTime(clipId: string, splitTime: number): void {
+    const tracks = this.tracksSubject.value;
+    let clipToSplit: AudioClip | undefined;
+    let trackIndex = -1;
+
+    // Find the clip to split
+    for (let i = 0; i < tracks.length; i++) {
+      const clip = tracks[i].clips.find(c => c.id === clipId);
+      if (clip) {
+        clipToSplit = clip;
+        trackIndex = i;
+        break;
+      }
+    }
+
+    if (!clipToSplit || trackIndex === -1) return;
+
+    // Calculate split point in the original audio buffer
+    const splitPointInBuffer = clipToSplit.trimStart + splitTime;
+
+    // Create first clip (left part)
+    const firstClip: AudioClip = {
+      id: uuidv4(),
+      trackId: clipToSplit.trackId,
+      name: `${clipToSplit.name} (1)`,
+      startTime: clipToSplit.startTime,
+      duration: clipToSplit.duration,
+      trimStart: clipToSplit.trimStart,
+      trimEnd: clipToSplit.duration - splitPointInBuffer, // Trim from end
+      audioBuffer: clipToSplit.audioBuffer,
+      waveformData: clipToSplit.waveformData,
+      color: clipToSplit.color
+    };
+
+    // Create second clip (right part)
+    const secondClip: AudioClip = {
+      id: uuidv4(),
+      trackId: clipToSplit.trackId,
+      name: `${clipToSplit.name} (2)`,
+      startTime: clipToSplit.startTime + splitTime,
+      duration: clipToSplit.duration,
+      trimStart: splitPointInBuffer, // Trim from start
+      trimEnd: clipToSplit.trimEnd,
+      audioBuffer: clipToSplit.audioBuffer,
+      waveformData: clipToSplit.waveformData,
+      color: clipToSplit.color
+    };
+
+    // Replace original clip with two new clips
+    const updatedTracks = [...tracks];
+    updatedTracks[trackIndex] = {
+      ...updatedTracks[trackIndex],
+      clips: updatedTracks[trackIndex].clips
+        .filter(c => c.id !== clipId)
+        .concat([firstClip, secondClip])
+        .sort((a, b) => a.startTime - b.startTime)
+    };
+
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Duplicates a clip and places it immediately after the original
+   */
+  duplicateClip(clipId: string): void {
+    const tracks = this.tracksSubject.value;
+    let clipToDuplicate: AudioClip | undefined;
+    let trackIndex = -1;
+
+    // Find the clip to duplicate
+    for (let i = 0; i < tracks.length; i++) {
+      const clip = tracks[i].clips.find(c => c.id === clipId);
+      if (clip) {
+        clipToDuplicate = clip;
+        trackIndex = i;
+        break;
+      }
+    }
+
+    if (!clipToDuplicate || trackIndex === -1) return;
+
+    // Calculate visible duration
+    const visibleDuration = clipToDuplicate.duration - clipToDuplicate.trimStart - clipToDuplicate.trimEnd;
+
+    // Create duplicate clip positioned after original
+    const duplicateClip: AudioClip = {
+      id: uuidv4(),
+      trackId: clipToDuplicate.trackId,
+      name: `${clipToDuplicate.name} (copy)`,
+      startTime: clipToDuplicate.startTime + visibleDuration,
+      duration: clipToDuplicate.duration,
+      trimStart: clipToDuplicate.trimStart,
+      trimEnd: clipToDuplicate.trimEnd,
+      audioBuffer: clipToDuplicate.audioBuffer,
+      waveformData: clipToDuplicate.waveformData,
+      color: clipToDuplicate.color
+    };
+
+    // Add duplicate to track
+    const updatedTracks = [...tracks];
+    updatedTracks[trackIndex] = {
+      ...updatedTracks[trackIndex],
+      clips: [...updatedTracks[trackIndex].clips, duplicateClip]
+        .sort((a, b) => a.startTime - b.startTime)
+    };
+
+    this.tracksSubject.next(updatedTracks);
+  }
 }

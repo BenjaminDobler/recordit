@@ -57,7 +57,12 @@
         <app-clip-item
           [clip]="clip"
           [pixelsPerSecond]="pixelsPerSecond()"
-          (positionChange)="onClipPositionChange($event)" />
+          [currentPlayheadTime]="currentPlayheadTime()"
+          (positionChange)="onClipPositionChange($event)"
+          (trimChange)="onClipTrimChange($event)"
+          (clipSplit)="onClipSplit($event)"
+          (clipDuplicate)="onClipDuplicate($event)"
+          (clipDelete)="onClipDelete($event)" />
       }
       @empty {
         <div class="empty-track-message">

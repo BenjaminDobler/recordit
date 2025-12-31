@@ -1,10 +1,28 @@
 <div
   class="clip-item"
   [class.dragging]="isDragging()"
+  [class.trimming]="isTrimming()"
   [style.left.px]="clipLeft()"
   [style.width.px]="clipWidth()"
   [style.background-color]="clip().color"
-  (mousedown)="onMouseDown($event)">
+  [style.cursor]="cursorStyle()"
+  (mousedown)="onMouseDown($event)"
+  (mousemove)="onMouseMoveHover($event)"
+  (mouseleave)="onMouseLeave()"
+  (contextmenu)="onContextMenu($event)">
+
+  <!-- Left trim handle -->
+  <div
+    class="trim-handle trim-handle-left"
+    [class.visible]="isHoverLeft() || (isTrimming() && trimMode() === 'left')">
+  </div>
+
+  <!-- Right trim handle -->
+  <div
+    class="trim-handle trim-handle-right"
+    [class.visible]="isHoverRight() || (isTrimming() && trimMode() === 'right')">
+  </div>
+
   <!-- Waveform background -->
   @if (clip().waveformData) {
     <div class="waveform-container">
@@ -18,6 +36,17 @@
   <!-- Clip info overlay -->
   <div class="clip-content">
     <span class="clip-name">{{ clip().name }}</span>
-    <span class="clip-duration">{{ clip().duration.toFixed(2) }}s</span>
+    <span class="clip-duration">{{ (clip().duration - clip().trimStart - clip().trimEnd).toFixed(2) }}s</span>
   </div>
 </div>
+
+<!-- Context Menu -->
+<app-clip-context-menu
+  [clip]="clip()"
+  [position]="contextMenuPosition()"
+  [visible]="showContextMenu()"
+  [currentPlayheadTime]="currentPlayheadTime()"
+  (split)="onClipSplit($event)"
+  (duplicate)="onClipDuplicate($event)"
+  (delete)="onClipDelete($event)"
+  (close)="onContextMenuClose()" />
