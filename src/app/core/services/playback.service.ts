@@ -311,4 +311,11 @@ export class PlaybackService {
     // Note: If we wanted to continue playback from the new position,
     // we could restart playback here. For now, seeking stops playback.
   }
+
+  /**
+   * Gets the current playback time
+   */
+  getCurrentTime(): number {
+    return this.currentTimeSubject.value;
+  }
 }

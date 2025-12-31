@@ -462,4 +462,125 @@ export class ClipManagerService {
 
     this.tracksSubject.next(updatedTracks);
   }
+
+  // Recording preview state
+  private recordingPreviewClipId: string | null = null;
+  private recordingPreviewTrackId: string | null = null;
+
+  /**
+   * Starts a recording preview clip
+   */
+  startRecordingPreview(trackId: string, startTime: number): void {
+    const tracks = this.tracksSubject.value;
+    const trackIndex = tracks.findIndex(t => t.id === trackId);
+
+    if (trackIndex === -1) return;
+
+    // Create a temporary preview clip
+    const previewClip: AudioClip = {
+      id: uuidv4(),
+      trackId,
+      name: 'Recording...',
+      startTime,
+      duration: 0,
+      trimStart: 0,
+      trimEnd: 0,
+      audioBuffer: null as any, // Will be replaced when recording finishes
+      waveformData: [],
+      color: '#e74c3c' // Red color for recording
+    };
+
+    this.recordingPreviewClipId = previewClip.id;
+    this.recordingPreviewTrackId = trackId;
+
+    // Add preview clip to track
+    const updatedTracks = [...tracks];
+    updatedTracks[trackIndex] = {
+      ...updatedTracks[trackIndex],
+      clips: [...updatedTracks[trackIndex].clips, previewClip]
+    };
+
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Updates the recording preview clip duration
+   */
+  updateRecordingPreview(duration: number): void {
+    if (!this.recordingPreviewClipId || !this.recordingPreviewTrackId) return;
+
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track => {
+      if (track.id === this.recordingPreviewTrackId) {
+        return {
+          ...track,
+          clips: track.clips.map(clip =>
+            clip.id === this.recordingPreviewClipId
+              ? { ...clip, duration }
+              : clip
+          )
+        };
+      }
+      return track;
+    });
+
+    this.tracksSubject.next(updatedTracks);
+  }
+
+  /**
+   * Finishes recording preview and replaces with actual clip
+   */
+  finishRecordingPreview(audioBuffer: AudioBuffer, clipName: string): void {
+    if (!this.recordingPreviewClipId || !this.recordingPreviewTrackId) return;
+
+    const tracks = this.tracksSubject.value;
+    const waveformData = generateWaveformData(audioBuffer);
+
+    const updatedTracks = tracks.map(track => {
+      if (track.id === this.recordingPreviewTrackId) {
+        return {
+          ...track,
+          clips: track.clips.map(clip =>
+            clip.id === this.recordingPreviewClipId
+              ? {
+                  ...clip,
+                  name: clipName,
+                  duration: audioBuffer.duration,
+                  audioBuffer,
+                  waveformData,
+                  color: track.color // Use track color
+                }
+              : clip
+          )
+        };
+      }
+      return track;
+    });
+
+    this.tracksSubject.next(updatedTracks);
+    this.recordingPreviewClipId = null;
+    this.recordingPreviewTrackId = null;
+  }
+
+  /**
+   * Cancels recording preview and removes the preview clip
+   */
+  cancelRecordingPreview(): void {
+    if (!this.recordingPreviewClipId || !this.recordingPreviewTrackId) return;
+
+    const tracks = this.tracksSubject.value;
+    const updatedTracks = tracks.map(track => {
+      if (track.id === this.recordingPreviewTrackId) {
+        return {
+          ...track,
+          clips: track.clips.filter(clip => clip.id !== this.recordingPreviewClipId)
+        };
+      }
+      return track;
+    });
+
+    this.tracksSubject.next(updatedTracks);
+    this.recordingPreviewClipId = null;
+    this.recordingPreviewTrackId = null;
+  }
 }

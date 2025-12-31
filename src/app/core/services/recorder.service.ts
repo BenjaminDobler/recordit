@@ -15,8 +15,12 @@ export class RecorderService {
   private audioChunks: Blob[] = [];
   private mediaStream: MediaStream | null = null;
   private recordingStateSubject = new BehaviorSubject<RecordingState>(RecordingState.Idle);
+  private recordingStartTime: number = 0;
+  private recordingDurationSubject = new BehaviorSubject<number>(0);
+  private durationInterval: number | null = null;
 
   recordingState$: Observable<RecordingState> = this.recordingStateSubject.asObservable();
+  recordingDuration$: Observable<number> = this.recordingDurationSubject.asObservable();
 
   constructor() {}
 
@@ -67,7 +71,15 @@ export class RecorderService {
 
       // Start recording
       this.mediaRecorder.start();
+      this.recordingStartTime = Date.now();
+      this.recordingDurationSubject.next(0);
       this.recordingStateSubject.next(RecordingState.Recording);
+
+      // Update duration every 100ms
+      this.durationInterval = window.setInterval(() => {
+        const elapsed = (Date.now() - this.recordingStartTime) / 1000;
+        this.recordingDurationSubject.next(elapsed);
+      }, 100);
     } catch (error) {
       console.error('Error starting recording:', error);
       this.recordingStateSubject.next(RecordingState.Idle);
@@ -84,6 +96,12 @@ export class RecorderService {
       if (!this.mediaRecorder) {
         reject(new Error('No recording in progress'));
         return;
+      }
+
+      // Clear duration update interval
+      if (this.durationInterval !== null) {
+        clearInterval(this.durationInterval);
+        this.durationInterval = null;
       }
 
       this.mediaRecorder.onstop = () => {

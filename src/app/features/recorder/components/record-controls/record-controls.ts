@@ -23,11 +23,20 @@ export class RecordControls {
   lastRecordedBlob: Blob | null = null;
   clipCounter = 0;
   private currentState: RecordingState = RecordingState.Idle;
+  private recordingStartPosition: number = 0;
 
   constructor() {
     // Track recording state
     this.recordingState$.subscribe(state => {
       this.currentState = state;
+    });
+
+    // Track recording duration for live preview
+    this.recorderService.recordingDuration$.subscribe(duration => {
+      if (this.currentState === RecordingState.Recording) {
+        // Update live preview clip duration
+        this.clipManagerService.updateRecordingPreview(duration);
+      }
     });
   }
 
@@ -41,8 +50,28 @@ export class RecordControls {
 
   async onRecord(): Promise<void> {
     try {
+      // Get the armed track (or first track if none armed)
+      const armedTrack = this.clipManagerService.getArmedTrack();
+      const targetTrack = armedTrack || this.clipManagerService.getFirstTrack();
+
+      if (!targetTrack) {
+        alert('No track available. Please add a track first.');
+        return;
+      }
+
+      // Get current playhead position
+      this.recordingStartPosition = this.playbackService.getCurrentTime();
+
+      // Start playing existing tracks for monitoring
+      await this.playbackService.playAllTracks();
+
+      // Start recording
       await this.recorderService.startRecording();
-      console.log('Recording started');
+
+      // Create live preview clip
+      this.clipManagerService.startRecordingPreview(targetTrack.id, this.recordingStartPosition);
+
+      console.log('Recording started at position:', this.recordingStartPosition);
     } catch (error) {
       console.error('Failed to start recording:', error);
       alert('Failed to access microphone. Please grant microphone permissions.');
@@ -51,6 +80,9 @@ export class RecordControls {
 
   async onStop(): Promise<void> {
     try {
+      // Stop playback monitoring
+      this.playbackService.stop();
+
       this.lastRecordedBlob = await this.recorderService.stopRecording();
       if (this.lastRecordedBlob) {
         console.log('Recording stopped. Blob size:', this.lastRecordedBlob.size);
@@ -64,21 +96,17 @@ export class RecordControls {
         this.audioStateService.setAudioBuffer(audioBuffer);
         this.playbackService.setAudioBuffer(audioBuffer);
 
-        // Add clip to the armed track (or first track if none armed)
-        const armedTrack = this.clipManagerService.getArmedTrack();
-        const targetTrack = armedTrack || this.clipManagerService.getFirstTrack();
+        // Replace preview clip with actual clip
+        this.clipCounter++;
+        const clipName = `Recording ${this.clipCounter}`;
+        this.clipManagerService.finishRecordingPreview(audioBuffer, clipName);
 
-        if (targetTrack) {
-          this.clipCounter++;
-          const clipName = `Recording ${this.clipCounter}`;
-          this.clipManagerService.createClip(targetTrack.id, audioBuffer, clipName, 0);
-          console.log(`Clip added to ${armedTrack ? 'armed' : 'first'} track:`, clipName);
-        } else {
-          alert('No track available. Please add a track first.');
-        }
+        console.log('Clip created:', clipName);
       }
     } catch (error) {
       console.error('Failed to stop recording:', error);
+      // Remove preview clip on error
+      this.clipManagerService.cancelRecordingPreview();
     }
   }
 }
