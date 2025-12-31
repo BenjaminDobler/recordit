@@ -8,7 +8,7 @@
 
   <div class="timeline-scroll-wrapper">
     <!-- Time Ruler -->
-    <div class="time-ruler-wrapper">
+    <div class="time-ruler-wrapper" (click)="onRulerClick($event)">
       <div class="ruler-spacer"></div>
       <div class="time-ruler" [style.width.px]="timelineLength() * pixelsPerSecond()">
         @for (marker of timeMarkers(); track marker) {

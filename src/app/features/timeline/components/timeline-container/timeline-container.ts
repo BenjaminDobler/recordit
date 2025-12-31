@@ -23,6 +23,9 @@ export class TimelineContainer {
   pixelsPerSecond = signal(100); // Can be adjusted for zoom
   timelineLength = signal(30); // 30 seconds visible
 
+  // Offset for track header (same as playhead)
+  private readonly TIMELINE_OFFSET = 250;
+
   /**
    * Generate time markers for the ruler
    */
@@ -155,6 +158,30 @@ export class TimelineContainer {
    * Handles playhead time change from drag
    */
   onPlayheadTimeChange(newTime: number): void {
+    this.playbackService.seek(newTime);
+  }
+
+  /**
+   * Handles click on the time ruler to seek to that position
+   */
+  onRulerClick(event: MouseEvent): void {
+    // Get the click position relative to the viewport
+    const clickX = event.clientX;
+
+    // Get the ruler wrapper's position
+    const rulerWrapper = event.currentTarget as HTMLElement;
+    const rect = rulerWrapper.getBoundingClientRect();
+
+    // Calculate relative position within the ruler wrapper
+    const relativeX = clickX - rect.left;
+
+    // Account for the ruler spacer offset
+    const timelineX = relativeX - this.TIMELINE_OFFSET;
+
+    // Convert pixels to time
+    const newTime = Math.max(0, timelineX / this.pixelsPerSecond());
+
+    // Seek to the new position
     this.playbackService.seek(newTime);
   }
 }
