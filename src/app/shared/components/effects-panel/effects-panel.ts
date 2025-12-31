@@ -1,7 +1,10 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AudioTrack } from '../../../core/models/audio-track.model';
 import { EffectType } from '../../../core/models/effect.model';
+import { EffectsPresetService } from '../../../core/services/effects-preset.service';
 
 interface StompBox {
   id: string;
@@ -14,22 +17,30 @@ interface StompBox {
 
 @Component({
   selector: 'app-effects-panel',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './effects-panel.html',
   styleUrl: './effects-panel.scss',
   standalone: true
 })
 export class EffectsPanel {
+  private presetsService = inject(EffectsPresetService);
+
   track = input.required<AudioTrack>();
   visible = input.required<boolean>();
 
   close = output<void>();
   effectToggle = output<{ trackId: string; effectType: EffectType }>();
   effectChange = output<{ trackId: string; effectType: EffectType; parameters: Record<string, number> }>();
+  presetLoad = output<{ trackId: string; presetId: string }>();
 
   // Dragging state
   draggedBox = signal<string | null>(null);
   dragOffset = { x: 0, y: 0 };
+
+  // Preset management
+  showPresetDialog = signal(false);
+  presetName = signal('');
+  presets = toSignal(this.presetsService.presets$, { initialValue: [] });
 
   EffectType = EffectType;
 
@@ -188,5 +199,62 @@ export class EffectsPanel {
   getKnobRotation(value: number): number {
     // Map 0-100 to -135deg to +135deg (270 degree range)
     return -135 + (value / 100) * 270;
+  }
+
+  // Preset management methods
+  openSavePresetDialog(): void {
+    this.presetName.set('');
+    this.showPresetDialog.set(true);
+  }
+
+  closeSavePresetDialog(): void {
+    this.showPresetDialog.set(false);
+  }
+
+  savePreset(): void {
+    const name = this.presetName().trim();
+    if (!name) {
+      alert('Please enter a preset name');
+      return;
+    }
+
+    const track = this.track();
+    this.presetsService.savePreset(name, track.effects);
+    this.showPresetDialog.set(false);
+    this.presetName.set('');
+  }
+
+  loadPreset(presetId: string): void {
+    const preset = this.presetsService.getPreset(presetId);
+    if (!preset) return;
+
+    // Emit each effect change
+    preset.effects.forEach(effect => {
+      // First update parameters
+      this.effectChange.emit({
+        trackId: this.track().id,
+        effectType: effect.type,
+        parameters: effect.parameters
+      });
+
+      // Then set enabled state if it's enabled
+      // (We only toggle if the current state differs from the preset)
+      const currentEffect = this.track().effects.find(e => e.type === effect.type);
+      const currentEnabled = currentEffect?.enabled || false;
+
+      if (currentEnabled !== effect.enabled) {
+        this.effectToggle.emit({
+          trackId: this.track().id,
+          effectType: effect.type
+        });
+      }
+    });
+  }
+
+  deletePreset(presetId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    if (confirm('Delete this preset?')) {
+      this.presetsService.deletePreset(presetId);
+    }
   }
 }

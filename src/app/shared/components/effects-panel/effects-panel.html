@@ -6,7 +6,32 @@
         <button class="close-btn" (click)="onBackdropClick()">×</button>
       </div>
 
-      <div class="pedalboard-canvas">
+      <div class="panel-body">
+        <!-- Presets Sidebar -->
+        <div class="presets-sidebar">
+          <h4>Presets</h4>
+          <button class="save-preset-btn" (click)="openSavePresetDialog()">
+            💾 Save Current
+          </button>
+
+          <div class="presets-list">
+            @for (preset of presets(); track preset.id) {
+              <div class="preset-item" (click)="loadPreset(preset.id)">
+                <span class="preset-name">{{ preset.name }}</span>
+                <button class="delete-preset-btn" (click)="deletePreset(preset.id, $event)" title="Delete preset">×</button>
+              </div>
+            }
+            @empty {
+              <div class="no-presets">
+                <p>No presets yet</p>
+                <p class="hint">Save your settings to create a preset</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Pedalboard Canvas -->
+        <div class="pedalboard-canvas">
         @for (box of stompBoxes(); track box.id) {
           <div
             [id]="box.id"
@@ -67,9 +92,31 @@
         }
       </div>
 
+      </div>
+
       <div class="panel-footer">
         <p>Click and drag pedals to rearrange • Click footswitch to enable/disable • Adjust knobs to change parameters</p>
       </div>
     </div>
+
+    <!-- Save Preset Dialog -->
+    @if (showPresetDialog()) {
+      <div class="preset-dialog-backdrop" (click)="closeSavePresetDialog()">
+        <div class="preset-dialog" (click)="$event.stopPropagation()">
+          <h3>Save Preset</h3>
+          <input
+            type="text"
+            class="preset-name-input"
+            placeholder="Enter preset name..."
+            [(ngModel)]="presetName"
+            (keyup.enter)="savePreset()"
+            autofocus />
+          <div class="preset-dialog-actions">
+            <button class="cancel-btn" (click)="closeSavePresetDialog()">Cancel</button>
+            <button class="save-btn" (click)="savePreset()">Save</button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 }
